@@ -1,0 +1,43 @@
+package com.example.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Warm Paper & Ink Studio Palette (Light)
+val ParchmentBackground = Color(0xFFFAF8F4)
+val CrispPaperSurface = Color(0xFFFFFFFF)
+val WarmSurfaceVariant = Color(0xFFF2ECE1)
+val WarmOutline = Color(0xFFE2D9C8)
+val SlateInkPrimary = Color(0xFF1E293B)
+val SlateInkSecondary = Color(0xFF475569)
+val CrimsonError = Color(0xFFB91C1C)
+val CrimsonErrorContainer = Color(0xFFFEE2E2)
+
+// Warm Paper & Ink Studio Palette (Dark)
+val DarkInkBackground = Color(0xFF11161F)
+val DarkSlateSurface = Color(0xFF1A2230)
+val DarkSlateVariant = Color(0xFF253042)
+val DarkOutline = Color(0xFF334155)
+val CreamInkPrimary = Color(0xFFF8FAFC)
+val CreamInkSecondary = Color(0xFFCBD5E1)
+val DarkError = Color(0xFFFCA5A5)
+val DarkErrorContainer = Color(0xFF7F1D1D)
+
+// Storage Distinction Tokens (Light)
+val SqliteBadgeBgLight = Color(0xFFFEF3C7)
+val SqliteBadgeFgLight = Color(0xFF92400E)
+val PrefsBadgeBgLight = Color(0xFFCCFBF1)
+val PrefsBadgeFgLight = Color(0xFF115E59)
+val SyncedBadgeBgLight = Color(0xFFE0E7FF)
+val SyncedBadgeFgLight = Color(0xFF3730A3)
+val PendingBannerBgLight = Color(0xFFFFF7ED)
+val PendingBannerFgLight = Color(0xFF9A3412)
+
+// Storage Distinction Tokens (Dark)
+val SqliteBadgeBgDark = Color(0xFF451A03)
+val SqliteBadgeFgDark = Color(0xFFFDE68A)
+val PrefsBadgeBgDark = Color(0xFF134E4A)
+val PrefsBadgeFgDark = Color(0xFF99F6E4)
+val SyncedBadgeBgDark = Color(0xFF312E81)
+val SyncedBadgeFgDark = Color(0xFFC7D2FE)
+val PendingBannerBgDark = Color(0xFF431407)
+val PendingBannerFgDark = Color(0xFFFDBA74)

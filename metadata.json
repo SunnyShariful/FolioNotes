@@ -1,0 +1,6 @@
+{
+  "name": "FolioNotes",
+  "description": "Dual-storage Android notes app using native SQLiteOpenHelper and SharedPreferences with recoverable synchronization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

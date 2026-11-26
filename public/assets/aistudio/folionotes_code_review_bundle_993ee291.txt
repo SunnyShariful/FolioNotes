@@ -1,0 +1,3611 @@
+FOLIONOTES ANDROID PROJECT — CODE REVIEW BUNDLE
+Generated from the original project ZIP. Source files are reproduced below with their relative paths.
+Binary assets (fonts, images, APKs) are omitted.
+
+
+====================================================================================================
+FILE: metadata.json
+====================================================================================================
+{
+  "name": "FolioNotes",
+  "description": "Dual-storage Android notes app using native SQLiteOpenHelper and SharedPreferences with recoverable synchronization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
+====================================================================================================
+FILE: app/build.gradle.kts
+====================================================================================================
+import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+
+plugins {
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.google.devtools.ksp)
+  alias(libs.plugins.secrets)
+  alias(libs.plugins.google.services)
+}
+
+android {
+  namespace = "com.example"
+  compileSdk { version = release(36) { minorApiLevel = 1 } }
+
+  defaultConfig {
+    applicationId = "com.aistudio.folionotes.madtqk"
+    minSdk = 24
+    targetSdk = 36
+    versionCode = 1
+    versionName = "1.0"
+
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+  }
+
+  // Do not remove or modify these signingConfigs. They are necessary for building, installing,
+  // and updating Android apps in AI Studio.
+  signingConfigs {
+    create("release") {
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      storeFile = file(keystorePath)
+      storePassword = System.getenv("STORE_PASSWORD")
+      keyAlias = "upload"
+      keyPassword = System.getenv("KEY_PASSWORD")
+    }
+    create("debugConfig") {
+      storeFile = file("${rootDir}/debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+  }
+
+  buildTypes {
+    release {
+      isCrunchPngs = false
+      isMinifyEnabled = false
+      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
+      // AI Studio.
+      signingConfig = signingConfigs.getByName("release")
+    }
+    debug {
+      // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
+      // AI Studio.
+      signingConfig = signingConfigs.getByName("debugConfig")
+    }
+  }
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+  buildFeatures {
+    compose = true
+    buildConfig = true
+  }
+  testOptions { unitTests { isIncludeAndroidResources = true } }
+  dependenciesInfo {
+    includeInApk = false
+    includeInBundle = true
+  }
+}
+
+// Configure the Secrets Gradle Plugin to use .env and .env.example files
+// to match the convention used in Web projects.
+secrets {
+  propertiesFileName = ".env"
+  defaultPropertiesFileName = ".env.example"
+  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
+}
+
+googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+
+// Some unused dependencies are commented out below instead of being removed.
+// This makes it easy to add them back in the future if needed.
+dependencies {
+  implementation(platform(libs.androidx.compose.bom))
+  // implementation(platform(libs.firebase.bom))
+  // implementation(libs.accompanist.permissions)
+  implementation(libs.androidx.activity.compose)
+  // implementation(libs.androidx.camera.camera2)
+  // implementation(libs.androidx.camera.core)
+  // implementation(libs.androidx.camera.lifecycle)
+  // implementation(libs.androidx.camera.view)
+  implementation(libs.androidx.compose.material.icons.core)
+  implementation(libs.androidx.compose.material.icons.extended)
+  implementation(libs.androidx.compose.material3)
+  implementation(libs.androidx.compose.ui)
+  implementation(libs.androidx.compose.ui.graphics)
+  implementation(libs.androidx.compose.ui.tooling.preview)
+  implementation(libs.androidx.core.ktx)
+  // implementation(libs.androidx.datastore.preferences)
+  implementation(libs.androidx.lifecycle.runtime.compose)
+  implementation(libs.androidx.lifecycle.runtime.ktx)
+  implementation(libs.androidx.lifecycle.viewmodel.compose)
+  // implementation(libs.androidx.navigation.compose)
+  // implementation(libs.androidx.room.ktx)
+  // implementation(libs.androidx.room.runtime)
+  // implementation(libs.coil.compose)
+  // implementation(libs.converter.moshi)
+  // implementation(libs.firebase.ai)
+  // Uncomment to use Firestore:
+  // implementation(libs.firebase.firestore)
+
+  // Uncomment ALL FOUR of the following dependencies together to use Firebase Auth and Google
+  // Sign-In via Credential Manager:
+  // implementation(libs.firebase.auth)
+  // implementation(libs.androidx.credentials)
+  // implementation(libs.androidx.credentials.play.services)
+  // implementation(libs.googleid)
+  // implementation(libs.firebase.appcheck.recaptcha)
+  // implementation(libs.firebase.appcheck.debug)
+  implementation(libs.kotlinx.coroutines.android)
+  implementation(libs.kotlinx.coroutines.core)
+  // implementation(libs.logging.interceptor)
+  // implementation(libs.moshi.kotlin)
+  // implementation(libs.okhttp)
+  // implementation(libs.play.services.location)
+  // implementation(libs.retrofit)
+  testImplementation(libs.androidx.compose.ui.test.junit4)
+  testImplementation(libs.androidx.core)
+  testImplementation(libs.androidx.junit)
+  testImplementation(libs.junit)
+  testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation(libs.robolectric)
+  androidTestImplementation(platform(libs.androidx.compose.bom))
+  androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+  androidTestImplementation(libs.androidx.espresso.core)
+  androidTestImplementation(libs.androidx.junit)
+  androidTestImplementation(libs.androidx.runner)
+  debugImplementation(libs.androidx.compose.ui.test.manifest)
+  debugImplementation(libs.androidx.compose.ui.tooling)
+  // "ksp"(libs.androidx.room.compiler)
+  // "ksp"(libs.moshi.kotlin.codegen)
+}
+
+====================================================================================================
+FILE: app/src/main/res/drawable/ic_launcher_foreground.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="66dp"
+        android:height="66dp"
+        android:drawable="@drawable/folionotes_icon_1795715321574"
+        android:gravity="center" />
+</layer-list>
+
+====================================================================================================
+FILE: gradle/libs.versions.toml
+====================================================================================================
+[versions]
+agp = "9.1.1"
+coreKtx = "1.18.0"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+lifecycleRuntimeKtx = "2.8.7"
+lifecycleViewmodelCompose = "2.8.7"
+lifecycleRuntimeCompose = "2.8.7"
+activityCompose = "1.10.1"
+kotlin = "2.4.21"
+composeBom = "2024.09.00"
+googleDevtoolsKsp = "2.3.5"
+navigationCompose = "2.8.9"
+roomRuntime = "2.7.0"
+roomKtx = "2.7.0"
+roomCompiler = "2.7.0"
+kotlinxCoroutinesTest = "1.10.2"
+core = "1.6.1"
+runner = "1.6.2"
+coilCompose = "2.7.0"
+retrofit = "2.12.0"
+converterMoshi = "2.12.0"
+kotlinxCoroutinesAndroid = "1.10.2"
+kotlinxCoroutinesCore = "1.10.2"
+accompanistPermissions = "0.37.3"
+playServicesLocation = "21.3.0"
+cameraCamera2 = "1.5.0"
+cameraLifecycle = "1.5.0"
+cameraView = "1.5.0"
+cameraCore = "1.5.0"
+loggingInterceptor = "4.10.0"
+okhttp = "4.10.0"
+moshiKotlin = "1.15.2"
+moshiKotlinCodegen = "1.15.2"
+datastorePreferences = "1.1.7"
+robolectric = "4.16.1"
+firebaseBom = "35.1.0"
+secretsGradlePlugin = "2.0.1"
+googleServices = "4.5.0"
+credentials = "1.5.0"
+googleid = "1.1.1"
+
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+converter-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "converterMoshi" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshiKotlin" }
+moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshiKotlinCodegen" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
+firebase-appcheck-recaptcha = { group = "com.google.firebase", name = "firebase-appcheck-recaptcha" }
+firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "googleDevtoolsKsp" }
+secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+
+====================================================================================================
+FILE: app/src/main/res/xml/backup_rules.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?><!--
+   Sample backup rules file; uncomment and customize as necessary.
+   See https://developer.android.com/guide/topics/data/autobackup
+   for details.
+   Note: This file is ignored for devices older than API 31
+   See https://developer.android.com/about/versions/12/backup-restore
+-->
+<full-backup-content>
+    <!--
+   <include domain="sharedpref" path="."/>
+   <exclude domain="sharedpref" path="device.xml"/>
+-->
+</full-backup-content>
+
+====================================================================================================
+FILE: gradle/wrapper/gradle-wrapper.properties
+====================================================================================================
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-9.3.1-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+
+====================================================================================================
+FILE: build.gradle.kts
+====================================================================================================
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+  alias(libs.plugins.android.application) apply false
+  alias(libs.plugins.kotlin.compose) apply false
+  alias(libs.plugins.google.devtools.ksp) apply false
+  alias(libs.plugins.secrets) apply false
+  alias(libs.plugins.google.services) apply false
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/theme/Type.kt
+====================================================================================================
+package com.example.ui.theme
+
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.R
+
+val PlayfairDisplayFontFamily = FontFamily(
+  Font(R.font.playfair_display, FontWeight.Normal),
+  Font(R.font.playfair_display, FontWeight.SemiBold),
+  Font(R.font.playfair_display, FontWeight.Bold),
+)
+
+val PlusJakartaSansFontFamily = FontFamily(
+  Font(R.font.plus_jakarta_sans, FontWeight.Normal),
+  Font(R.font.plus_jakarta_sans, FontWeight.Medium),
+  Font(R.font.plus_jakarta_sans, FontWeight.SemiBold),
+  Font(R.font.plus_jakarta_sans, FontWeight.Bold),
+)
+
+val JetBrainsMonoFontFamily = FontFamily(
+  Font(R.font.jetbrains_mono, FontWeight.Normal),
+  Font(R.font.jetbrains_mono, FontWeight.Medium),
+)
+
+val Typography =
+  Typography(
+    headlineMedium =
+      TextStyle(
+        fontFamily = PlayfairDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.25).sp,
+      ),
+    titleLarge =
+      TextStyle(
+        fontFamily = PlayfairDisplayFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+      ),
+    titleMedium =
+      TextStyle(
+        fontFamily = PlusJakartaSansFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp,
+        lineHeight = 24.sp,
+      ),
+    bodyLarge =
+      TextStyle(
+        fontFamily = PlusJakartaSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+      ),
+    bodyMedium =
+      TextStyle(
+        fontFamily = PlusJakartaSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+      ),
+    labelLarge =
+      TextStyle(
+        fontFamily = PlusJakartaSansFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+      ),
+    labelMedium =
+      TextStyle(
+        fontFamily = JetBrainsMonoFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+      ),
+    labelSmall =
+      TextStyle(
+        fontFamily = JetBrainsMonoFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 11.sp,
+        lineHeight = 14.sp,
+      ),
+  )
+
+====================================================================================================
+FILE: settings.gradle.kts
+====================================================================================================
+pluginManagement {
+  repositories {
+    google {
+      content {
+        includeGroupByRegex("com\\.android.*")
+        includeGroupByRegex("com\\.google.*")
+        includeGroupByRegex("androidx.*")
+      }
+    }
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0" }
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+rootProject.name = "FolioNotes"
+
+include(":app")
+
+====================================================================================================
+FILE: app/src/main/res/drawable/ic_launcher_background.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#1E293B" />
+</shape>
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/theme/Color.kt
+====================================================================================================
+package com.example.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Warm Paper & Ink Studio Palette (Light)
+val ParchmentBackground = Color(0xFFFAF8F4)
+val CrispPaperSurface = Color(0xFFFFFFFF)
+val WarmSurfaceVariant = Color(0xFFF2ECE1)
+val WarmOutline = Color(0xFFE2D9C8)
+val SlateInkPrimary = Color(0xFF1E293B)
+val SlateInkSecondary = Color(0xFF475569)
+val CrimsonError = Color(0xFFB91C1C)
+val CrimsonErrorContainer = Color(0xFFFEE2E2)
+
+// Warm Paper & Ink Studio Palette (Dark)
+val DarkInkBackground = Color(0xFF11161F)
+val DarkSlateSurface = Color(0xFF1A2230)
+val DarkSlateVariant = Color(0xFF253042)
+val DarkOutline = Color(0xFF334155)
+val CreamInkPrimary = Color(0xFFF8FAFC)
+val CreamInkSecondary = Color(0xFFCBD5E1)
+val DarkError = Color(0xFFFCA5A5)
+val DarkErrorContainer = Color(0xFF7F1D1D)
+
+// Storage Distinction Tokens (Light)
+val SqliteBadgeBgLight = Color(0xFFFEF3C7)
+val SqliteBadgeFgLight = Color(0xFF92400E)
+val PrefsBadgeBgLight = Color(0xFFCCFBF1)
+val PrefsBadgeFgLight = Color(0xFF115E59)
+val SyncedBadgeBgLight = Color(0xFFE0E7FF)
+val SyncedBadgeFgLight = Color(0xFF3730A3)
+val PendingBannerBgLight = Color(0xFFFFF7ED)
+val PendingBannerFgLight = Color(0xFF9A3412)
+
+// Storage Distinction Tokens (Dark)
+val SqliteBadgeBgDark = Color(0xFF451A03)
+val SqliteBadgeFgDark = Color(0xFFFDE68A)
+val PrefsBadgeBgDark = Color(0xFF134E4A)
+val PrefsBadgeFgDark = Color(0xFF99F6E4)
+val SyncedBadgeBgDark = Color(0xFF312E81)
+val SyncedBadgeFgDark = Color(0xFFC7D2FE)
+val PendingBannerBgDark = Color(0xFF431407)
+val PendingBannerFgDark = Color(0xFFFDBA74)
+
+====================================================================================================
+FILE: app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>
+
+====================================================================================================
+FILE: app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>
+
+====================================================================================================
+FILE: app/src/test/java/com/example/ExampleUnitTest.kt
+====================================================================================================
+package com.example
+
+import com.example.data.local.SharedPrefsNoteStore
+import com.example.data.local.SqliteNoteStore
+import com.example.data.model.NoteDisplaySource
+import com.example.data.model.NoteFilterTab
+import com.example.data.model.PrefsOrigin
+import com.example.data.model.SharedPrefsNoteRecord
+import com.example.data.model.SqliteNoteRecord
+import com.example.data.model.StorageMethod
+import com.example.data.model.SyncResult
+import com.example.data.repository.NotesRepository
+import com.example.ui.notes.NotesViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ExampleUnitTest {
+
+  private val testDispatcher = StandardTestDispatcher()
+  private lateinit var fakeSqlite: InMemorySqliteStore
+  private lateinit var fakePrefs: InMemorySharedPrefsStore
+  private lateinit var repository: NotesRepository
+  private var fakeTime = 1_000L
+
+  @Before
+  fun setUp() {
+    Dispatchers.setMain(testDispatcher)
+    fakeSqlite = InMemorySqliteStore()
+    fakePrefs = InMemorySharedPrefsStore()
+    repository =
+      NotesRepository(
+        sqliteStore = fakeSqlite,
+        sharedPrefsStore = fakePrefs,
+        ioDispatcher = testDispatcher,
+        clock = { ++fakeTime },
+      )
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
+  }
+
+  @Test
+  fun `crud and in-place edit preserve uuid and original storage engine`() = runTest {
+    assertTrue(repository.createNote("  SQLite Note  ", "  Body A  ", StorageMethod.SQLITE))
+    assertTrue(repository.createNote("Prefs Note", "Body B", StorageMethod.SHARED_PREFERENCES))
+
+    val initial = repository.loadSnapshot()
+    assertEquals(2, initial.allNotes.size)
+    assertEquals(1, initial.sqliteCount)
+    assertEquals(1, initial.sharedPrefsCount)
+
+    val sqNote = initial.sqliteNotes.single()
+    assertEquals("SQLite Note", sqNote.title)
+    assertTrue(repository.updateNote(sqNote.id, "SQLite Edited", "Body A2", StorageMethod.SQLITE))
+
+    val afterEdit = repository.loadSnapshot()
+    assertEquals(2, afterEdit.allNotes.size)
+    assertEquals(1, afterEdit.sqliteCount)
+    assertEquals(sqNote.id, afterEdit.sqliteNotes.single().id)
+    assertEquals("SQLite Edited", afterEdit.sqliteNotes.single().title)
+  }
+
+  @Test
+  fun `deletion tombstone removes synced copy on sync and preserves SP-only notes`() = runTest {
+    repository.createNote("Sync Note", "From SQLite", StorageMethod.SQLITE)
+    repository.createNote("Local Prefs", "Only Prefs", StorageMethod.SHARED_PREFERENCES)
+
+    val sync1 = repository.syncSqliteToSharedPreferences()
+    assertEquals(SyncResult.Success(inserted = 1, updated = 0, deleted = 0), sync1)
+
+    val snapshotAfterSync = repository.loadSnapshot()
+    val syncedNote = snapshotAfterSync.sqliteNotes.single()
+    assertEquals(NoteDisplaySource.SYNCED_IN_BOTH, syncedNote.displaySource)
+    assertEquals(2, snapshotAfterSync.sharedPrefsCount)
+
+    // Delete synced SQLite note -> tombstone persisted until next sync.
+    assertTrue(repository.deleteNote(syncedNote))
+    assertEquals(setOf(syncedNote.id), fakeSqlite.getPendingDeletedIds())
+    assertEquals(1, repository.loadSnapshot().pendingSyncCount)
+
+    val sync2 = repository.syncSqliteToSharedPreferences()
+    assertEquals(SyncResult.Success(inserted = 0, updated = 0, deleted = 1), sync2)
+    assertTrue(fakeSqlite.getPendingDeletedIds().isEmpty())
+
+    val finalSnapshot = repository.loadSnapshot()
+    assertEquals(0, finalSnapshot.sqliteCount)
+    assertEquals(1, finalSnapshot.sharedPrefsCount)
+    assertEquals("Local Prefs", finalSnapshot.sharedPrefsNotes.single().title)
+  }
+
+  @Test
+  fun `stage1 failure preserves sqlite state and stage2 failure recovers idempotently`() =
+    runTest {
+      repository.createNote("Recoverable", "Content", StorageMethod.SQLITE)
+      val noteId = repository.loadSnapshot().sqliteNotes.single().id
+
+      // Simulate Stage 1 commit() returning false.
+      fakePrefs.failNextCommit = true
+      assertEquals(SyncResult.Failure, repository.syncSqliteToSharedPreferences())
+      assertFalse(fakeSqlite.getAllNotes().single().isSynced)
+      assertNull(fakePrefs.getNoteById(noteId))
+
+      // Stage 1 succeeds, Stage 2 throws -> pending metadata stays in SQLite for safe retry.
+      fakeSqlite.failNextFinalize = true
+      assertEquals(SyncResult.Failure, repository.syncSqliteToSharedPreferences())
+      assertNotNull(fakePrefs.getNoteById(noteId))
+      assertFalse(fakeSqlite.getAllNotes().single().isSynced)
+
+      // Retry converges cleanly with zero duplicates.
+      val retry = repository.syncSqliteToSharedPreferences()
+      assertEquals(SyncResult.Success(inserted = 0, updated = 0, deleted = 0), retry)
+      assertTrue(fakeSqlite.getAllNotes().single().isSynced)
+      assertEquals(1, fakePrefs.getAllNotes().size)
+    }
+
+  @Test
+  fun `unexpected uuid collision rekeys independent SharedPreferences note without overwrite`() =
+    runTest {
+      repository.createNote("SQLite Truth", "SQLite Body", StorageMethod.SQLITE)
+      val sqliteId = repository.loadSnapshot().sqliteNotes.single().id
+
+      fakePrefs.saveNote(
+        SharedPrefsNoteRecord(
+          id = sqliteId,
+          title = "Independent SP Note",
+          content = "Must survive collision",
+          createdAt = 50L,
+          updatedAt = 60L,
+          origin = PrefsOrigin.SHARED_PREFERENCES,
+        )
+      )
+
+      val result = repository.syncSqliteToSharedPreferences()
+      assertEquals(
+        SyncResult.Success(inserted = 1, updated = 0, deleted = 0, collisionRekeyed = 1),
+        result,
+      )
+
+      val prefsList = fakePrefs.getAllNotes()
+      assertEquals(2, prefsList.size)
+      val spOriginal = prefsList.single { it.origin == PrefsOrigin.SHARED_PREFERENCES }
+      val sqliteMirror = prefsList.single { it.origin == PrefsOrigin.SYNCED_FROM_SQLITE }
+      assertEquals("Independent SP Note", spOriginal.title)
+      assertTrue(spOriginal.id != sqliteId)
+      assertEquals(sqliteId, sqliteMirror.id)
+      assertEquals("SQLite Truth", sqliteMirror.title)
+    }
+
+  @Test
+  fun `viewmodel validates blank fields and locks storage location during edit`() = runTest {
+    val viewModel = NotesViewModel(repository)
+    advanceUntilIdle()
+
+    viewModel.openCreateEditor()
+    viewModel.onEditorTitleChanged("   ")
+    viewModel.onEditorContentChanged("")
+    viewModel.saveNote()
+    advanceUntilIdle()
+
+    val errorState = viewModel.uiState.value.editorState
+    assertTrue(errorState.isVisible)
+    assertEquals(R.string.error_title_empty, errorState.titleErrorRes)
+    assertEquals(R.string.error_content_empty, errorState.contentErrorRes)
+
+    viewModel.onEditorTitleChanged("Lab 5 Title")
+    viewModel.onEditorContentChanged("Lab 5 Content")
+    viewModel.onEditorStorageSelected(StorageMethod.SHARED_PREFERENCES)
+    viewModel.saveNote()
+    advanceUntilIdle()
+
+    assertFalse(viewModel.uiState.value.editorState.isVisible)
+    assertEquals(1, viewModel.uiState.value.sharedPrefsCount)
+    viewModel.selectTab(NoteFilterTab.SHARED_PREFERENCES)
+    val saved = viewModel.uiState.value.displayedNotes.single()
+
+    // Opening in edit mode locks original storage engine.
+    viewModel.openEditEditor(saved)
+    viewModel.onEditorStorageSelected(StorageMethod.SQLITE)
+    assertEquals(StorageMethod.SHARED_PREFERENCES, viewModel.uiState.value.editorState.storageMethod)
+  }
+
+  private class InMemorySqliteStore : SqliteNoteStore {
+    private val notes = linkedMapOf<String, SqliteNoteRecord>()
+    private val tombstones = linkedMapOf<String, Long>()
+    var failNextFinalize = false
+
+    override fun getAllNotes(): List<SqliteNoteRecord> =
+      notes.values.sortedByDescending { it.updatedAt }
+
+    override fun getPendingDeletedIds(): Set<String> = tombstones.keys.toSet()
+
+    override fun insertNote(record: SqliteNoteRecord): Boolean {
+      notes[record.id] = record
+      tombstones.remove(record.id)
+      return true
+    }
+
+    override fun updateNote(id: String, title: String, content: String, updatedAt: Long): Boolean {
+      val existing = notes[id] ?: return false
+      notes[id] = existing.copy(title = title, content = content, updatedAt = updatedAt)
+      return true
+    }
+
+    override fun deleteNoteWithTombstone(
+      noteId: String,
+      hasSyncedCopyInPrefs: Boolean,
+      deletedAt: Long,
+    ): Boolean {
+      val removed = notes.remove(noteId)
+      if (removed == null && !hasSyncedCopyInPrefs) return false
+      if (removed?.isSynced == true || hasSyncedCopyInPrefs) {
+        tombstones[noteId] = deletedAt
+      }
+      return true
+    }
+
+    override fun finalizeSyncMetadata(
+      syncedNoteIds: List<String>,
+      processedTombstoneIds: Set<String>,
+      syncTimestamp: Long,
+    ) {
+      if (failNextFinalize) {
+        failNextFinalize = false
+        throw IllegalStateException("Simulated SQLite error")
+      }
+      processedTombstoneIds.forEach { tombstones.remove(it) }
+      syncedNoteIds.forEach { id ->
+        notes[id]?.let { existing ->
+          notes[id] = existing.copy(isSynced = true, lastSyncedAt = syncTimestamp)
+        }
+      }
+    }
+  }
+
+  private class InMemorySharedPrefsStore : SharedPrefsNoteStore {
+    private val store = linkedMapOf<String, SharedPrefsNoteRecord>()
+    var failNextCommit = false
+
+    override fun getAllNotes(): List<SharedPrefsNoteRecord> =
+      store.values.sortedByDescending { it.updatedAt }
+
+    override fun getNoteById(id: String): SharedPrefsNoteRecord? = store[id]
+
+    override fun saveNote(record: SharedPrefsNoteRecord): Boolean {
+      store[record.id] = record
+      return true
+    }
+
+    override fun deleteNote(id: String): Boolean = store.remove(id) != null
+
+    override fun applySyncBatch(
+      removals: Set<String>,
+      upserts: List<SharedPrefsNoteRecord>,
+    ): Boolean {
+      if (failNextCommit) {
+        failNextCommit = false
+        return false
+      }
+      removals.forEach { store.remove(it) }
+      upserts.forEach { store[it.id] = it }
+      return true
+    }
+  }
+}
+
+====================================================================================================
+FILE: app/proguard-rules.pro
+====================================================================================================
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+
+====================================================================================================
+FILE: app/src/main/res/values/themes.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MyApplication" parent="android:Theme.DeviceDefault.NoActionBar" />
+</resources>
+
+====================================================================================================
+FILE: app/src/main/res/values/strings.xml
+====================================================================================================
+<resources>
+    <string name="app_name">FolioNotes</string>
+    <string name="app_subtitle">Dual-Storage Local Notebook</string>
+
+    <!-- Navigation & Filter Tabs -->
+    <string name="tab_all">All</string>
+    <string name="tab_sqlite">SQLite</string>
+    <string name="tab_shared_prefs">SharedPrefs</string>
+    <string name="tab_count_format">%1$s (%2$d)</string>
+
+    <!-- Storage Names & Badges -->
+    <string name="storage_sqlite">SQLite</string>
+    <string name="storage_shared_prefs">SharedPreferences</string>
+    <string name="badge_sqlite">SQLite</string>
+    <string name="badge_shared_prefs">SharedPrefs</string>
+    <string name="badge_synced">Synced</string>
+
+    <!-- Top Bar & Sync Status -->
+    <string name="action_sync">Sync</string>
+    <string name="cd_sync_notes">Synchronize notes from SQLite to SharedPreferences</string>
+    <string name="sync_status_all_synced">SQLite and SharedPreferences are in sync</string>
+    <string name="sync_status_pending_format">%1$d pending SQLite change(s) ready to sync</string>
+    <string name="sync_in_progress">Synchronizing…</string>
+
+    <!-- Actions & Buttons -->
+    <string name="action_new_note">New Note</string>
+    <string name="cd_add_note">Create a new note</string>
+    <string name="action_save">Save Note</string>
+    <string name="action_update">Update Note</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="cd_delete_note">Delete note %1$s</string>
+    <string name="cd_close_editor">Close note editor</string>
+
+    <!-- Note Editor -->
+    <string name="editor_title_create">Create Note</string>
+    <string name="editor_title_edit">Edit Note</string>
+    <string name="label_note_title">Title</string>
+    <string name="hint_note_title">Enter a clear note title</string>
+    <string name="label_note_content">Content</string>
+    <string name="hint_note_content">Write your note details here…</string>
+    <string name="label_storage_method">Storage Method</string>
+    <string name="helper_storage_create">Choose where this note will be persisted locally.</string>
+    <string name="helper_storage_locked">Storage location is locked to preserve this note\'s original engine.</string>
+    <string name="cd_storage_locked_icon">Storage location locked</string>
+
+    <!-- Input Validation -->
+    <string name="error_title_empty">Title cannot be empty.</string>
+    <string name="error_content_empty">Content cannot be empty.</string>
+
+    <!-- Empty States -->
+    <string name="empty_all_title">No notes yet</string>
+    <string name="empty_all_subtitle">Tap New Note to create a note in SQLite or SharedPreferences.</string>
+    <string name="empty_sqlite_title">No SQLite notes</string>
+    <string name="empty_sqlite_subtitle">Notes saved with SQLite selected will appear here.</string>
+    <string name="empty_prefs_title">No SharedPreferences notes</string>
+    <string name="empty_prefs_subtitle">Create a note in SharedPreferences or tap Sync to mirror SQLite notes.</string>
+    <string name="cd_empty_notebook">Empty notebook illustration</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="dialog_delete_title">Delete Note?</string>
+    <string name="dialog_delete_message">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="dialog_delete_synced_hint">Its synced copy in SharedPreferences will also be queued for removal on your next Sync.</string>
+
+    <!-- Note Card Metadata -->
+    <string name="note_updated_format">Updated %1$s</string>
+
+    <!-- Snackbar Feedback Messages -->
+    <string name="msg_note_created_sqlite">Note saved to SQLite.</string>
+    <string name="msg_note_created_prefs">Note saved to SharedPreferences.</string>
+    <string name="msg_note_updated">Note updated.</string>
+    <string name="msg_note_deleted">Note deleted.</string>
+    <string name="msg_operation_failed">Could not complete storage operation. Please try again.</string>
+    <string name="msg_sync_success_format">Synced: %1$d added, %2$d updated, %3$d removed.</string>
+    <string name="msg_sync_already_up_to_date">Sync complete. SharedPreferences is already up to date.</string>
+    <string name="msg_sync_failed">Synchronization failed. Pending sync state was preserved for retry.</string>
+</resources>
+
+====================================================================================================
+FILE: app/src/main/AndroidManifest.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyApplication">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+====================================================================================================
+FILE: app/src/main/res/xml/data_extraction_rules.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?><!--
+   Sample data extraction rules file; uncomment and customize as necessary.
+   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   for details.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- TODO: Use <include> and <exclude> to control what is backed up.
+        <include .../>
+        <exclude .../>
+        -->
+    </cloud-backup>
+    <!--
+    <device-transfer>
+        <include .../>
+        <exclude .../>
+    </device-transfer>
+    -->
+</data-extraction-rules>
+
+====================================================================================================
+FILE: app/src/main/res/values/colors.xml
+====================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
+
+====================================================================================================
+FILE: app/src/main/java/com/example/MainActivity.kt
+====================================================================================================
+package com.example
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.ViewModelProvider
+import com.example.data.local.NotesDbHelper
+import com.example.data.local.SQLiteDataSource
+import com.example.data.local.SharedPrefsDataSource
+import com.example.data.repository.NotesRepository
+import com.example.ui.notes.NotesScreen
+import com.example.ui.notes.NotesViewModel
+import com.example.ui.notes.NotesViewModelFactory
+import com.example.ui.theme.FolioNotesTheme
+
+class MainActivity : ComponentActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
+
+    val dbHelper = NotesDbHelper(applicationContext)
+    val sqliteDataSource = SQLiteDataSource(dbHelper)
+    val sharedPrefsDataSource = SharedPrefsDataSource(applicationContext)
+    val repository = NotesRepository(sqliteDataSource, sharedPrefsDataSource)
+    val viewModel =
+      ViewModelProvider(this, NotesViewModelFactory(repository))[NotesViewModel::class.java]
+
+    setContent {
+      FolioNotesTheme {
+        NotesScreen(viewModel = viewModel)
+      }
+    }
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/theme/Theme.kt
+====================================================================================================
+package com.example.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+
+@Immutable
+data class StorageColors(
+  val sqliteContainer: Color,
+  val onSqliteContainer: Color,
+  val prefsContainer: Color,
+  val onPrefsContainer: Color,
+  val syncedContainer: Color,
+  val onSyncedContainer: Color,
+  val pendingContainer: Color,
+  val onPendingContainer: Color,
+)
+
+private val LightStorageColors =
+  StorageColors(
+    sqliteContainer = SqliteBadgeBgLight,
+    onSqliteContainer = SqliteBadgeFgLight,
+    prefsContainer = PrefsBadgeBgLight,
+    onPrefsContainer = PrefsBadgeFgLight,
+    syncedContainer = SyncedBadgeBgLight,
+    onSyncedContainer = SyncedBadgeFgLight,
+    pendingContainer = PendingBannerBgLight,
+    onPendingContainer = PendingBannerFgLight,
+  )
+
+private val DarkStorageColors =
+  StorageColors(
+    sqliteContainer = SqliteBadgeBgDark,
+    onSqliteContainer = SqliteBadgeFgDark,
+    prefsContainer = PrefsBadgeBgDark,
+    onPrefsContainer = PrefsBadgeFgDark,
+    syncedContainer = SyncedBadgeBgDark,
+    onSyncedContainer = SyncedBadgeFgDark,
+    pendingContainer = PendingBannerBgDark,
+    onPendingContainer = PendingBannerFgDark,
+  )
+
+val LocalStorageColors = staticCompositionLocalOf { LightStorageColors }
+
+private val LightColorScheme =
+  lightColorScheme(
+    primary = SlateInkPrimary,
+    onPrimary = Color.White,
+    primaryContainer = WarmSurfaceVariant,
+    onPrimaryContainer = SlateInkPrimary,
+    secondary = PrefsBadgeFgLight,
+    onSecondary = Color.White,
+    secondaryContainer = PrefsBadgeBgLight,
+    onSecondaryContainer = PrefsBadgeFgLight,
+    tertiary = SqliteBadgeFgLight,
+    tertiaryContainer = SqliteBadgeBgLight,
+    onTertiaryContainer = SqliteBadgeFgLight,
+    background = ParchmentBackground,
+    onBackground = SlateInkPrimary,
+    surface = CrispPaperSurface,
+    onSurface = SlateInkPrimary,
+    surfaceVariant = WarmSurfaceVariant,
+    onSurfaceVariant = SlateInkSecondary,
+    outline = WarmOutline,
+    outlineVariant = WarmOutline,
+    error = CrimsonError,
+    onError = Color.White,
+    errorContainer = CrimsonErrorContainer,
+    onErrorContainer = CrimsonError,
+  )
+
+private val DarkColorScheme =
+  darkColorScheme(
+    primary = CreamInkPrimary,
+    onPrimary = DarkInkBackground,
+    primaryContainer = DarkSlateVariant,
+    onPrimaryContainer = CreamInkPrimary,
+    secondary = PrefsBadgeFgDark,
+    onSecondary = DarkInkBackground,
+    secondaryContainer = PrefsBadgeBgDark,
+    onSecondaryContainer = PrefsBadgeFgDark,
+    tertiary = SqliteBadgeFgDark,
+    tertiaryContainer = SqliteBadgeBgDark,
+    onTertiaryContainer = SqliteBadgeFgDark,
+    background = DarkInkBackground,
+    onBackground = CreamInkPrimary,
+    surface = DarkSlateSurface,
+    onSurface = CreamInkPrimary,
+    surfaceVariant = DarkSlateVariant,
+    onSurfaceVariant = CreamInkSecondary,
+    outline = DarkOutline,
+    outlineVariant = DarkOutline,
+    error = DarkError,
+    onError = DarkErrorContainer,
+    errorContainer = DarkErrorContainer,
+    onErrorContainer = DarkError,
+  )
+
+@Composable
+fun FolioNotesTheme(
+  darkTheme: Boolean = isSystemInDarkTheme(),
+  content: @Composable () -> Unit,
+) {
+  val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+  val storageColors = if (darkTheme) DarkStorageColors else LightStorageColors
+
+  CompositionLocalProvider(LocalStorageColors provides storageColors) {
+    MaterialTheme(
+      colorScheme = colorScheme,
+      typography = Typography,
+      content = content,
+    )
+  }
+}
+
+====================================================================================================
+FILE: app/src/androidTest/java/com/example/ExampleInstrumentedTest.kt
+====================================================================================================
+package com.example
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+  @Test
+  fun useAppContext() {
+    // Context of the app under test.
+    val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+    assertEquals(BuildConfig.APPLICATION_ID, appContext.packageName)
+  }
+}
+
+====================================================================================================
+FILE: gradle.properties
+====================================================================================================
+# Project-wide Gradle settings.
+# IDE (e.g. Android Studio) users:
+# Gradle settings configured through the IDE *will override*
+# any settings specified in this file.
+# For more details on how to configure your build environment visit
+# http://www.gradle.org/docs/current/userguide/build_environment.html
+# Specifies the JVM arguments used for the daemon process.
+# The setting is particularly useful for tweaking memory settings.
+org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+# When configured, Gradle will run in incubating parallel mode.
+# This option should only be used with decoupled projects. For more details, visit
+# https://developer.android.com/r/tools/gradle-multi-project-decoupled-projects
+org.gradle.parallel=true
+# Kotlin code style for this project: "official" or "obsolete":
+kotlin.code.style=official
+# Enables namespacing of each library's R class so that its R class includes only the
+# resources declared in the library itself and none from the library's dependencies,
+# thereby reducing the size of the R class for that library
+android.nonTransitiveRClass=true
+org.gradle.caching=true
+org.gradle.configuration-cache=true
+# Set the maximum number of workers to 4 to avoid overloading the machine.
+org.gradle.workers.max=4
+# Set the Kotlin compiler execution strategy to in-process to avoid "Could not
+# connect to Kotlin compile daemon" error.
+kotlin.compiler.execution.strategy=in-process
+# Allow the google-services plugin to work even if the google-services.json is not present.
+googleServices.missing.passthrough=true
+
+====================================================================================================
+FILE: app/src/test/java/com/example/ExampleRobolectricTest.kt
+====================================================================================================
+package com.example
+
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class ExampleRobolectricTest {
+
+  @Test
+  fun `read string from context`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val appName = context.getString(R.string.app_name)
+    assertEquals("FolioNotes", appName)
+  }
+}
+
+====================================================================================================
+FILE: .aistudio/artifacts/brain/5060594c-042e-4fd2-bd29-a42b4fe4c49d/implementation_plan.md
+====================================================================================================
+# FolioNotes — Dual-Storage Android Notes Application (Final Plan)
+
+FolioNotes is a native Kotlin and Jetpack Compose note-taking application built for MADT Lab #5 that demonstrates complete local CRUD operations, user-selectable persistence across **SQLite (`SQLiteOpenHelper`)** and **`SharedPreferences`**, **two-stage recoverable SQLite-to-SharedPreferences synchronization** with persistent deletion tracking, strict input validation, and full Android string-resource localization.
+
+## User Review & Critical Decisions
+
+> [!IMPORTANT]
+> **Confirmed Architectural Decisions & Final Scope**
+> - **Primary SQLite Engine**: Native `SQLiteOpenHelper` for direct schema management, local SQLite transactions, and parameterized queries.
+> - **Immutable Storage Location After Creation**: Users select **SQLite** or **SharedPreferences** when creating a new note. Editing an existing note preserves its original storage location and updates the existing record in place by UUID—no cross-storage migration is performed.
+> - **Storage Visibility**: Filter tabs (**All**, **SQLite**, **SharedPreferences**) with origin/sync badges on every note card.
+> - **Two-Stage Recoverable Synchronization**: Stage 1 commits `SharedPreferences` (`editor.commit() == true`), and only then does Stage 2 finalize SQLite sync metadata and clear processed `deleted_notes` tombstones.
+> - **Strict Origin Protection & Collision Safety**: Sync updates `SYNCED_FROM_SQLITE` entries from SQLite, strictly preserves `SHARED_PREFERENCES` entries, and safely re-keys any unexpected UUID collision without overwriting independent `SharedPreferences` notes.
+> - **Localization Scope**: English string resources (`values/strings.xml`) covering 100% of UI text, validation errors, dialogs, snackbars, and accessibility descriptions.
+
+---
+
+## 1. Overview & Core Concept
+
+- **What It Does**: Lets users create, read, inspect, edit, and delete notes composed of a title and content. Users select **SQLite** or **SharedPreferences** upon note creation, filter notes by storage source, and run an explicit **SQLite → SharedPreferences** sync with recoverable failure handling and origin protection.
+- **Target Audience / Persona**: Mobile Application Development students and instructors evaluating MADT Lab #5 (Activities, Interactions, and Storage).
+- **Key Value**: Keeps storage boundaries clean and predictable while thoroughly handling persistence across restarts, empty-field validation, full string-resource localization, and sync edge cases.
+
+### Official MADT Lab #5 Requirements Verification *(7 Special Part + 7 Common Part)*
+
+#### Special Part — 7 Core Requirements
+
+| # | Special Part Requirement | Planned Implementation |
+| :-: | :--- | :--- |
+| 1 | **Complete Note CRUD Operations** — Users can create, read/view, update/edit, and delete notes. | Full Create, Read (list & inspect), Update (in-place by UUID in original store), and Delete (with confirmation dialog) for notes. |
+| 2 | **Title and Content** — Every note must contain a user-visible title and content. | Structured `Note` entity containing required user-visible `title` and `content`, plus UUID `id`, `createdAt`, `updatedAt`, and sync metadata. |
+| 3 | **Two Storage Methods** — SQLite must be the primary storage method, and SharedPreferences must be used as the secondary method. | Primary: native `SQLiteOpenHelper` (`NotesDbHelper`) with `notes` and `deleted_notes` tables, `ContentValues`, parameterized queries, `.use {}` cursors, and local transactions. Secondary: dedicated `notes_prefs` `SharedPreferences` store persisting per-UUID JSON payloads (`org.json.JSONObject`) with explicit `origin` metadata. |
+| 4 | **User Storage Selection** — Users must be able to choose which storage method to use when saving a note. | Segmented storage selector (**SQLite** / **SharedPreferences**) during note creation; locked as a read-only storage badge when editing an existing note. |
+| 5 | **Synchronization** — Users must be able to synchronize notes from the primary storage method (SQLite) with the secondary storage method (SharedPreferences). | Explicit top-bar Sync action running two-stage recoverable, idempotent sync with persistent deletion tombstones (`deleted_notes`) and `SHARED_PREFERENCES` origin protection. |
+| 6 | **Input Validation** — Validate entered data to prevent empty notes. | Blocks saving when trimmed `title` or `content` is blank, displaying localized inline error messages under invalid fields. |
+| 7 | **Localization** — All displayed text must be easily localizable. Do not hard-code UI text in the application. | 100% of visible UI text, labels, tabs, badges, validation errors, snackbars, dialogs, and `contentDescription` strings stored in `res/values/strings.xml` and resolved via `stringResource(...)` / `context.getString(...)`. |
+
+#### Common Part — 7 Official Lab Workflow Requirements
+
+| # | Common Part Requirement | Compliance & Workflow Status |
+| :-: | :--- | :--- |
+| 1 | **Planning-First Initiation (`/grill-me` / `/plan`)** | Initiated with `/grill-me`, followed by requirement analysis, interactive clarification interview, and iterative plan approval prior to code generation. |
+| 2 | **AI-Only Code Generation (No Manual Edits)** | All Android source files, resources, and configuration updates are generated and modified exclusively by the AI agent; IDE/build tools are used only for building, running, and review. |
+| 3 | **Separate AI Session for Code Review & Top-2 Improvements** | After this code-generation session finishes, a separate AI session will review the codebase and implement the two highest-priority improvements identified. |
+| 4 | **Separate AI Session for `README.md` & GitHub Description** | A dedicated AI session will author `README.md` and publish it as the GitHub repository description. |
+| 5 | **Separate AI Session for GitHub Commit & Push** | A dedicated AI session will handle staging, committing, and pushing the project to GitHub. |
+| 6 | **Strict Session Separation** | Code generation (this session), code review, documentation generation, and GitHub operations are executed in strictly separate AI sessions. |
+| 7 | **Session Summary Markdown & Moodle Submission** | Final deliverable summarizes all sessions, references the session list, highlights user inputs, produces a Markdown summary file, and uploads it alongside the GitHub repository link to Moodle. |
+
+---
+
+## 2. User Experience & Visual Design
+
+### Key User Flows
+
+1. **Zero State & Initial Launch**:
+   - Opens on the **All** filter tab with live counters for **SQLite** and **SharedPreferences** notes.
+   - Displays a clean empty-state card with an icon and prompt when no notes exist.
+2. **Create & Storage Selection**:
+   - Tapping the FAB opens the **Create Note** sheet/screen with **Title**, **Content**, and an interactive **SQLite / SharedPreferences** segmented selector (defaulting to **SQLite**).
+   - Validation highlights blank fields with inline crimson error text and prevents saving.
+3. **Read, Filter & Inspect**:
+   - Filter tabs (**All**, **SQLite**, **SharedPreferences**) filter notes cleanly.
+   - Each card displays title, content preview, last-updated timestamp, and a crisp badge (**SQLite**, **SharedPreferences**, or **Synced**).
+4. **In-Place Edit & Delete**:
+   - Tapping a note opens the **Edit Note** sheet/screen pre-filled with its title, content, and a **read-only storage location badge** showing its original storage engine (**SQLite** or **SharedPreferences**).
+   - Saving updates the existing record in place using its original UUID without creating duplicates or moving it between engines.
+   - Tapping **Delete** prompts a confirmation dialog; deleting a previously synchronized SQLite note persists its UUID in `deleted_notes` so the synced copy in `SharedPreferences` is removed on the next sync.
+5. **SQLite → SharedPreferences Synchronization**:
+   - Tapping **Sync** runs the two-stage recoverable sync pipeline and shows a localized snackbar reporting inserted, updated, and removed synced counts—or a retryable error message if persistence fails.
+
+### Visual Identity & Theme
+
+- **Aesthetic Direction**: **Warm Paper & Ink Studio** — clean editorial stationery aesthetic with tactile cards and color-coded storage indicators.
+- **Color Palette & Mood** *(Material 3 semantic tokens, light & dark adaptive)*:
+  - *Light Surface*: Warm parchment cream (`#FAF8F4`), elevated note cards (`#FFFFFF`), warm hairline borders (`#E6E0D4`).
+  - *Primary Ink*: Deep slate-charcoal (`#1E293B`).
+  - *Storage Badges*: Warm terracotta/amber (`#B45309` / `#FEF3C7`) for **SQLite**; calm teal-sage (`#0F766E` / `#CCFBF1`) for **SharedPreferences**; indigo (`#4338CA` / `#E0E7FF`) for **Synced**.
+  - *Validation Error*: Crisp crimson (`#B91C1C`).
+- **Typography & Hierarchy**:
+  - Locally bundled Google Fonts via `font-util`: **Playfair Display** for editorial headings, **Plus Jakarta Sans** for UI controls and body text, and **JetBrains Mono** for timestamps, counts, and badges.
+- **Component Styling & Motion**:
+  - Edge-to-edge layout (`enableEdgeToEdge()`) respecting status bar and navigation bar insets, `48.dp+` minimum touch targets, Material ripples, `AnimatedVisibility` transitions, and `widthIn(max = 640.dp)` adaptive centering.
+
+---
+
+## 3. Key Product Decisions & Trade-Offs
+
+- **Decision 1 — Native Kotlin, Jetpack Compose, Local-Only Persistence & Localization**:
+  - *Chosen Approach*: Pure native Android using Kotlin, Jetpack Compose (Material 3), and an MVVM + Repository architecture backed strictly by local `SQLiteOpenHelper` and `SharedPreferences` (zero Firebase or cloud storage). Every visible UI string, error, badge, dialog, snackbar, and accessibility description is externalized into `res/values/strings.xml`.
+  - *Why*: Ensures durable persistence across app restarts, clean maintainability for subsequent code review, and full compliance with local storage and string-resource localization requirements.
+
+- **Decision 2 — Preserve Original Storage Location on Edit (No Cross-Storage Migration)**:
+  - *Chosen Approach*: Users choose **SQLite** or **SharedPreferences** during note creation. When editing an existing note, the storage location is read-only and updates are written in place to that same store under the note's existing UUID.
+  - *Why*: Eliminates partial-failure and duplicate-record risks from cross-engine moves, avoids unnecessary migration infrastructure, and keeps **SQLite → SharedPreferences** synchronization as a distinct, explicit feature.
+
+- **Decision 3 — Two-Stage Recoverable Sync (No Cross-Storage Atomic Illusion)**:
+  - *Chosen Approach*: Treat SQLite and `SharedPreferences` as separate local engines synchronized via a two-stage recoverable sequence under a coroutine `Mutex`: Stage 1 commits `SharedPreferences` (`editor.commit() == true`), and Stage 2 finalizes SQLite metadata (`is_synced`, `deleted_notes`) inside a local SQLite transaction.
+  - *Why*: SQLite and `SharedPreferences` cannot participate in one shared atomic transaction. Ordering `SharedPreferences` commit first guarantees that if Stage 1 fails, SQLite retains all pending flags and tombstones; if Stage 2 fails after Stage 1 succeeds, pending metadata remains in SQLite so retrying sync is safe and idempotent.
+
+- **Decision 4 — Origin-Protected `SharedPreferences` & Unexpected UUID Collision Handling**:
+  - *Chosen Approach*: Tag every `SharedPreferences` JSON payload with `"origin": "SHARED_PREFERENCES" | "SYNCED_FROM_SQLITE"`. Sync only updates or deletes entries with `origin == SYNCED_FROM_SQLITE`. If an active SQLite note's UUID ever unexpectedly collides with an existing `SHARED_PREFERENCES`-origin entry, sync never overwrites the independent SP note—it re-keys the `SHARED_PREFERENCES` note to a fresh unused UUID in the same batch before writing the `SYNCED_FROM_SQLITE` entry.
+  - *Why*: Guarantees independently created `SharedPreferences` notes are never silently overwritten or lost.
+
+- **Decision 5 — Persistent Deletion Tombstones (`deleted_notes`)**:
+  - *Chosen Approach*: When deleting a previously synchronized SQLite note (`is_synced == 1` or having a `SYNCED_FROM_SQLITE` copy), atomically delete from `notes` and insert the UUID into `deleted_notes` within one SQLite transaction.
+  - *Why*: Survives process death and app restarts until Stage 1 + Stage 2 synchronization completes.
+
+---
+
+## 4. Technical Architecture & Data Strategy *(Technical Reference)*
+
+### Architecture & Component Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Jetpack Compose UI Layer                        │
+│  ┌──────────────────────┐  ┌────────────────────┐  ┌─────────────────┐  │
+│  │   NotesListScreen    │  │  NoteEditorSheet   │  │ Delete & Sync   │  │
+│  │ (Tabs, Badges, FAB)  │  │ (Create / Edit)    │  │ Dialogs/Snack   │  │
+│  └──────────┬───────────┘  └─────────┬──────────┘  └────────┬────────┘  │
+└─────────────┼────────────────────────┼──────────────────────┼───────────┘
+              │ StateFlow              │ Intents              │
+              ▼                        ▼                      ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          NotesViewModel (MVVM)                          │
+│  • Exposes NotesUiState (lists, counts, pendingSyncCount, errors)       │
+│  • Dispatches Create, In-Place Update, Delete & Sync on Dispatchers.IO  │
+└───────────────────────────────────┬─────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                   NotesRepository (Mutex-Guarded Engine)                │
+│  • Serializes all mutations & syncs via Mutex on Dispatchers.IO         │
+│  • Routes Create & In-Place Update to the note's single storage engine  │
+│  • Runs Two-Stage Recoverable, Idempotent Sync                          │
+└───────────────────┬─────────────────────────────────┬───────────────────┘
+                    │                                 │
+                    ▼                                 ▼
+┌───────────────────────────────────┐ ┌───────────────────────────────────┐
+│   SQLiteDataSource                │ │   SharedPrefsDataSource           │
+│   (NotesDbHelper :                │ │   ("notes_prefs" XML Store)       │
+│    SQLiteOpenHelper)              │ │   • Key = note.id (UUID)          │
+│   • Table: notes                  │ │   • Value = JSONObject {          │
+│     (id PK, title, content,       │ │       id, title, content,         │
+│      created_at, updated_at,      │ │       createdAt, updatedAt,       │
+│      is_synced, last_synced_at)   │ │       origin }                    │
+│   • Table: deleted_notes          │ │   • Origin Guard:                 │
+│     (note_id PK, deleted_at)      │ │     SHARED_PREFERENCES vs         │
+│   • Local SQLite Transactions     │ │     SYNCED_FROM_SQLITE            │
+└───────────────────────────────────┘ └───────────────────────────────────┘
+```
+
+### Database Schema & Data Model
+
+#### SQLite Schema (`NotesDbHelper`, `DATABASE_VERSION = 1`)
+
+1. **`notes` Table**:
+   - `id TEXT PRIMARY KEY` (UUID string)
+   - `title TEXT NOT NULL`
+   - `content TEXT NOT NULL`
+   - `created_at INTEGER NOT NULL`
+   - `updated_at INTEGER NOT NULL`
+   - `is_synced INTEGER NOT NULL DEFAULT 0` (`1` only after Stage 1 commit + Stage 2 SQLite finalization)
+   - `last_synced_at INTEGER` (nullable epoch millis)
+
+2. **`deleted_notes` Table (Persistent Deletion Tombstones)**:
+   - `note_id TEXT PRIMARY KEY` (UUID of deleted, previously synchronized SQLite note)
+   - `deleted_at INTEGER NOT NULL` (epoch millis)
+
+#### `SharedPreferences` JSON Schema (`notes_prefs`)
+
+- **Key**: `note.id` (UUID string)
+- **Value**: JSON string with fields:
+  - `id`: String (UUID)
+  - `title`: String
+  - `content`: String
+  - `createdAt`: Long
+  - `updatedAt`: Long
+  - `origin`: `"SHARED_PREFERENCES"` or `"SYNCED_FROM_SQLITE"`
+
+### Two-Stage Recoverable Synchronization Flow
+
+All repository mutations and sync operations run inside `Mutex.withLock` on `Dispatchers.IO`:
+
+1. **Snapshot Read**:
+   - Read all active rows from SQLite `notes`, all pending UUIDs from `deleted_notes`, and all valid JSON records from `SharedPreferences`.
+2. **Stage 1 — `SharedPreferences` Batch Build & Verified Commit**:
+   - Open `prefs.edit()`:
+     - **Tombstone Deletions**: For each `tombstoneId` in `deleted_notes` (excluding any ID present in active `notes`):
+       - If `SharedPreferences` contains `tombstoneId` with `origin == SYNCED_FROM_SQLITE`, call `editor.remove(tombstoneId)`.
+       - If `SharedPreferences` contains `tombstoneId` with `origin == SHARED_PREFERENCES`, **do NOT remove it** (preserve SP-only note).
+     - **SQLite Authoritative Upserts**: For each active `sqliteNote` in `notes`:
+       - Check existing `SharedPreferences` entry at `sqliteNote.id`:
+         - *Absent*: Put JSON with `origin = SYNCED_FROM_SQLITE` (count as inserted).
+         - *Present & `origin == SYNCED_FROM_SQLITE`*: Overwrite with latest SQLite fields and `origin = SYNCED_FROM_SQLITE` (count as updated only if fields changed; repeated runs are no-ops).
+         - *Present & `origin == SHARED_PREFERENCES` (Unexpected UUID Collision)*: **Never overwrite.** Generate a fresh unused UUID `rekeyId`, write the untouched `SHARED_PREFERENCES` note under `rekeyId` (with `id = rekeyId` and `origin = SHARED_PREFERENCES`), and write `sqliteNote` under `sqliteNote.id` with `origin = SYNCED_FROM_SQLITE`.
+   - Execute `val committed = editor.commit()`.
+   - **If `!committed` (or exception)**: Return `SyncResult.Failure`. Stage 2 is skipped; SQLite `is_synced` and `deleted_notes` remain unchanged for safe retry.
+3. **Stage 2 — SQLite Metadata Finalization**:
+   - Inside a local SQLite transaction (`beginTransaction()`):
+     - Delete all processed `tombstoneId` rows from `deleted_notes`.
+     - Update active synced rows in `notes` with `is_synced = 1` and `last_synced_at = syncTimestamp`.
+     - Mark transaction successful.
+   - **If Stage 2 fails**: Catch the error and return `SyncResult.Failure`. Pending `deleted_notes` and `is_synced = 0` flags remain in SQLite. On the next sync retry, Stage 1 idempotently produces the exact same `SharedPreferences` state (zero duplicates, zero lost SP-only notes), and Stage 2 completes SQLite finalization cleanly.
+
+### Data Integrity Guarantees
+
+- **In-Place Editing**: Preserves the note's UUID and its original storage engine (`SQLite` or `SharedPreferences`), updating only the existing row or key without creating duplicates or moving records across engines.
+- **Persistent Deletion Tracking**: Deleting a previously synchronized SQLite note atomically removes it from `notes` and records its UUID in `deleted_notes` within one SQLite transaction, surviving restarts until Stage 1 + Stage 2 sync completes.
+- **Idempotent Repeated Synchronization**: Keying both SQLite and `SharedPreferences` by UUID guarantees repeated syncs converge to the exact same state with zero duplicates.
+- **Safe Storage Access**: Parameterized SQL (`?` bindings), `.use {}` cursor scoping, defensive JSON parsing, and `Mutex` + `Dispatchers.IO` serialization.
+
+====================================================================================================
+FILE: .aistudio/artifacts/brain/5060594c-042e-4fd2-bd29-a42b4fe4c49d/implementation_plan.md.metadata.json
+====================================================================================================
+{
+  "summary":  "Final implementation plan for FolioNotes with the exact seven Special Part requirements and seven Common Part requirements matching the official MADT Lab #5 PDF.",
+  "updatedAt":  "2026-11-26T17:47:05.312313989Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/data/model/NoteModels.kt
+====================================================================================================
+package com.example.data.model
+
+enum class StorageMethod {
+  SQLITE,
+  SHARED_PREFERENCES,
+}
+
+enum class PrefsOrigin {
+  SHARED_PREFERENCES,
+  SYNCED_FROM_SQLITE,
+}
+
+enum class NoteDisplaySource {
+  SQLITE_ONLY,
+  SHARED_PREFS_ONLY,
+  SYNCED_IN_BOTH,
+}
+
+enum class NoteFilterTab {
+  ALL,
+  SQLITE,
+  SHARED_PREFERENCES,
+}
+
+data class Note(
+  val id: String,
+  val title: String,
+  val content: String,
+  val createdAt: Long,
+  val updatedAt: Long,
+  val storageMethod: StorageMethod,
+  val isSynced: Boolean,
+  val displaySource: NoteDisplaySource,
+)
+
+data class SqliteNoteRecord(
+  val id: String,
+  val title: String,
+  val content: String,
+  val createdAt: Long,
+  val updatedAt: Long,
+  val isSynced: Boolean,
+  val lastSyncedAt: Long?,
+)
+
+data class SharedPrefsNoteRecord(
+  val id: String,
+  val title: String,
+  val content: String,
+  val createdAt: Long,
+  val updatedAt: Long,
+  val origin: PrefsOrigin,
+)
+
+data class NotesSnapshot(
+  val allNotes: List<Note>,
+  val sqliteNotes: List<Note>,
+  val sharedPrefsNotes: List<Note>,
+  val sqliteCount: Int,
+  val sharedPrefsCount: Int,
+  val pendingSyncCount: Int,
+)
+
+sealed interface SyncResult {
+  data class Success(
+    val inserted: Int,
+    val updated: Int,
+    val deleted: Int,
+    val collisionRekeyed: Int = 0,
+  ) : SyncResult {
+    val totalChanges: Int
+      get() = inserted + updated + deleted
+  }
+
+  data object Failure : SyncResult
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/data/local/NotesDbHelper.kt
+====================================================================================================
+package com.example.data.local
+
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class NotesDbHelper(context: Context) :
+  SQLiteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
+
+  override fun onCreate(db: SQLiteDatabase) {
+    db.execSQL(SQL_CREATE_NOTES_TABLE)
+    db.execSQL(SQL_CREATE_DELETED_NOTES_TABLE)
+  }
+
+  override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+    // Future schema migrations can be handled incrementally by version number.
+  }
+
+  companion object {
+    const val DATABASE_NAME = "folionotes.db"
+    const val DATABASE_VERSION = 1
+
+    const val TABLE_NOTES = "notes"
+    const val COL_ID = "id"
+    const val COL_TITLE = "title"
+    const val COL_CONTENT = "content"
+    const val COL_CREATED_AT = "created_at"
+    const val COL_UPDATED_AT = "updated_at"
+    const val COL_IS_SYNCED = "is_synced"
+    const val COL_LAST_SYNCED_AT = "last_synced_at"
+
+    const val TABLE_DELETED_NOTES = "deleted_notes"
+    const val COL_DELETED_NOTE_ID = "note_id"
+    const val COL_DELETED_AT = "deleted_at"
+
+    private const val SQL_CREATE_NOTES_TABLE =
+      """
+      CREATE TABLE IF NOT EXISTS $TABLE_NOTES (
+        $COL_ID TEXT PRIMARY KEY,
+        $COL_TITLE TEXT NOT NULL,
+        $COL_CONTENT TEXT NOT NULL,
+        $COL_CREATED_AT INTEGER NOT NULL,
+        $COL_UPDATED_AT INTEGER NOT NULL,
+        $COL_IS_SYNCED INTEGER NOT NULL DEFAULT 0,
+        $COL_LAST_SYNCED_AT INTEGER
+      )
+      """
+
+    private const val SQL_CREATE_DELETED_NOTES_TABLE =
+      """
+      CREATE TABLE IF NOT EXISTS $TABLE_DELETED_NOTES (
+        $COL_DELETED_NOTE_ID TEXT PRIMARY KEY,
+        $COL_DELETED_AT INTEGER NOT NULL
+      )
+      """
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/data/local/SQLiteDataSource.kt
+====================================================================================================
+package com.example.data.local
+
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
+import com.example.data.local.NotesDbHelper.Companion.COL_CONTENT
+import com.example.data.local.NotesDbHelper.Companion.COL_CREATED_AT
+import com.example.data.local.NotesDbHelper.Companion.COL_DELETED_AT
+import com.example.data.local.NotesDbHelper.Companion.COL_DELETED_NOTE_ID
+import com.example.data.local.NotesDbHelper.Companion.COL_ID
+import com.example.data.local.NotesDbHelper.Companion.COL_IS_SYNCED
+import com.example.data.local.NotesDbHelper.Companion.COL_LAST_SYNCED_AT
+import com.example.data.local.NotesDbHelper.Companion.COL_TITLE
+import com.example.data.local.NotesDbHelper.Companion.COL_UPDATED_AT
+import com.example.data.local.NotesDbHelper.Companion.TABLE_DELETED_NOTES
+import com.example.data.local.NotesDbHelper.Companion.TABLE_NOTES
+import com.example.data.model.SqliteNoteRecord
+
+interface SqliteNoteStore {
+  fun getAllNotes(): List<SqliteNoteRecord>
+
+  fun getPendingDeletedIds(): Set<String>
+
+  fun insertNote(record: SqliteNoteRecord): Boolean
+
+  fun updateNote(id: String, title: String, content: String, updatedAt: Long): Boolean
+
+  fun deleteNoteWithTombstone(
+    noteId: String,
+    hasSyncedCopyInPrefs: Boolean,
+    deletedAt: Long,
+  ): Boolean
+
+  fun finalizeSyncMetadata(
+    syncedNoteIds: List<String>,
+    processedTombstoneIds: Set<String>,
+    syncTimestamp: Long,
+  )
+}
+
+class SQLiteDataSource(private val dbHelper: NotesDbHelper) : SqliteNoteStore {
+
+  override fun getAllNotes(): List<SqliteNoteRecord> {
+    val db = dbHelper.readableDatabase
+    val results = mutableListOf<SqliteNoteRecord>()
+    val columns =
+      arrayOf(
+        COL_ID,
+        COL_TITLE,
+        COL_CONTENT,
+        COL_CREATED_AT,
+        COL_UPDATED_AT,
+        COL_IS_SYNCED,
+        COL_LAST_SYNCED_AT,
+      )
+    db.query(TABLE_NOTES, columns, null, null, null, null, "$COL_UPDATED_AT DESC").use { cursor ->
+      val idIdx = cursor.getColumnIndexOrThrow(COL_ID)
+      val titleIdx = cursor.getColumnIndexOrThrow(COL_TITLE)
+      val contentIdx = cursor.getColumnIndexOrThrow(COL_CONTENT)
+      val createdIdx = cursor.getColumnIndexOrThrow(COL_CREATED_AT)
+      val updatedIdx = cursor.getColumnIndexOrThrow(COL_UPDATED_AT)
+      val syncedIdx = cursor.getColumnIndexOrThrow(COL_IS_SYNCED)
+      val lastSyncedIdx = cursor.getColumnIndexOrThrow(COL_LAST_SYNCED_AT)
+
+      while (cursor.moveToNext()) {
+        results.add(
+          SqliteNoteRecord(
+            id = cursor.getString(idIdx),
+            title = cursor.getString(titleIdx),
+            content = cursor.getString(contentIdx),
+            createdAt = cursor.getLong(createdIdx),
+            updatedAt = cursor.getLong(updatedIdx),
+            isSynced = cursor.getInt(syncedIdx) == 1,
+            lastSyncedAt = if (cursor.isNull(lastSyncedIdx)) null else cursor.getLong(lastSyncedIdx),
+          )
+        )
+      }
+    }
+    return results
+  }
+
+  override fun getPendingDeletedIds(): Set<String> {
+    val db = dbHelper.readableDatabase
+    val ids = linkedSetOf<String>()
+    db.query(
+        TABLE_DELETED_NOTES,
+        arrayOf(COL_DELETED_NOTE_ID),
+        null,
+        null,
+        null,
+        null,
+        null,
+      )
+      .use { cursor ->
+        val idIdx = cursor.getColumnIndexOrThrow(COL_DELETED_NOTE_ID)
+        while (cursor.moveToNext()) {
+          ids.add(cursor.getString(idIdx))
+        }
+      }
+    return ids
+  }
+
+  override fun insertNote(record: SqliteNoteRecord): Boolean {
+    val db = dbHelper.writableDatabase
+    db.beginTransaction()
+    return try {
+      val values =
+        ContentValues().apply {
+          put(COL_ID, record.id)
+          put(COL_TITLE, record.title)
+          put(COL_CONTENT, record.content)
+          put(COL_CREATED_AT, record.createdAt)
+          put(COL_UPDATED_AT, record.updatedAt)
+          put(COL_IS_SYNCED, if (record.isSynced) 1 else 0)
+          if (record.lastSyncedAt != null) {
+            put(COL_LAST_SYNCED_AT, record.lastSyncedAt)
+          } else {
+            putNull(COL_LAST_SYNCED_AT)
+          }
+        }
+      val rowId = db.insertWithOnConflict(TABLE_NOTES, null, values, SQLiteDatabase.CONFLICT_ABORT)
+      if (rowId == -1L) return false
+      db.delete(TABLE_DELETED_NOTES, "$COL_DELETED_NOTE_ID = ?", arrayOf(record.id))
+      db.setTransactionSuccessful()
+      true
+    } finally {
+      db.endTransaction()
+    }
+  }
+
+  override fun updateNote(id: String, title: String, content: String, updatedAt: Long): Boolean {
+    val db = dbHelper.writableDatabase
+    val values =
+      ContentValues().apply {
+        put(COL_TITLE, title)
+        put(COL_CONTENT, content)
+        put(COL_UPDATED_AT, updatedAt)
+      }
+    val updatedRows = db.update(TABLE_NOTES, values, "$COL_ID = ?", arrayOf(id))
+    return updatedRows > 0
+  }
+
+  override fun deleteNoteWithTombstone(
+    noteId: String,
+    hasSyncedCopyInPrefs: Boolean,
+    deletedAt: Long,
+  ): Boolean {
+    val db = dbHelper.writableDatabase
+    db.beginTransaction()
+    return try {
+      var wasPreviouslySynced = false
+      db.query(
+          TABLE_NOTES,
+          arrayOf(COL_IS_SYNCED),
+          "$COL_ID = ?",
+          arrayOf(noteId),
+          null,
+          null,
+          null,
+        )
+        .use { cursor ->
+          if (cursor.moveToFirst()) {
+            wasPreviouslySynced = cursor.getInt(cursor.getColumnIndexOrThrow(COL_IS_SYNCED)) == 1
+          }
+        }
+
+      val deletedRows = db.delete(TABLE_NOTES, "$COL_ID = ?", arrayOf(noteId))
+      if (deletedRows == 0 && !hasSyncedCopyInPrefs) {
+        return false
+      }
+
+      if (wasPreviouslySynced || hasSyncedCopyInPrefs) {
+        val tombstone =
+          ContentValues().apply {
+            put(COL_DELETED_NOTE_ID, noteId)
+            put(COL_DELETED_AT, deletedAt)
+          }
+        db.insertWithOnConflict(
+          TABLE_DELETED_NOTES,
+          null,
+          tombstone,
+          SQLiteDatabase.CONFLICT_REPLACE,
+        )
+      }
+
+      db.setTransactionSuccessful()
+      true
+    } finally {
+      db.endTransaction()
+    }
+  }
+
+  override fun finalizeSyncMetadata(
+    syncedNoteIds: List<String>,
+    processedTombstoneIds: Set<String>,
+    syncTimestamp: Long,
+  ) {
+    if (syncedNoteIds.isEmpty() && processedTombstoneIds.isEmpty()) return
+
+    val db = dbHelper.writableDatabase
+    db.beginTransaction()
+    try {
+      for (tombstoneId in processedTombstoneIds) {
+        db.delete(TABLE_DELETED_NOTES, "$COL_DELETED_NOTE_ID = ?", arrayOf(tombstoneId))
+      }
+      for (noteId in syncedNoteIds) {
+        val values =
+          ContentValues().apply {
+            put(COL_IS_SYNCED, 1)
+            put(COL_LAST_SYNCED_AT, syncTimestamp)
+          }
+        db.update(TABLE_NOTES, values, "$COL_ID = ?", arrayOf(noteId))
+      }
+      db.setTransactionSuccessful()
+    } finally {
+      db.endTransaction()
+    }
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/data/local/SharedPrefsDataSource.kt
+====================================================================================================
+package com.example.data.local
+
+import android.content.Context
+import android.content.SharedPreferences
+import com.example.data.model.PrefsOrigin
+import com.example.data.model.SharedPrefsNoteRecord
+import org.json.JSONException
+import org.json.JSONObject
+
+interface SharedPrefsNoteStore {
+  fun getAllNotes(): List<SharedPrefsNoteRecord>
+
+  fun getNoteById(id: String): SharedPrefsNoteRecord?
+
+  fun saveNote(record: SharedPrefsNoteRecord): Boolean
+
+  fun deleteNote(id: String): Boolean
+
+  fun applySyncBatch(removals: Set<String>, upserts: List<SharedPrefsNoteRecord>): Boolean
+}
+
+class SharedPrefsDataSource(context: Context) : SharedPrefsNoteStore {
+
+  private val prefs: SharedPreferences =
+    context.applicationContext.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+
+  override fun getAllNotes(): List<SharedPrefsNoteRecord> {
+    val entries = prefs.all
+    val notes = mutableListOf<SharedPrefsNoteRecord>()
+    for ((key, value) in entries) {
+      val rawJson = value as? String ?: continue
+      val parsed = parseRecord(key, rawJson)
+      if (parsed != null) {
+        notes.add(parsed)
+      }
+    }
+    return notes.sortedByDescending { it.updatedAt }
+  }
+
+  override fun getNoteById(id: String): SharedPrefsNoteRecord? {
+    val rawJson = prefs.getString(id, null) ?: return null
+    return parseRecord(id, rawJson)
+  }
+
+  override fun saveNote(record: SharedPrefsNoteRecord): Boolean {
+    return prefs.edit().putString(record.id, encodeRecord(record)).commit()
+  }
+
+  override fun deleteNote(id: String): Boolean {
+    return prefs.edit().remove(id).commit()
+  }
+
+  override fun applySyncBatch(
+    removals: Set<String>,
+    upserts: List<SharedPrefsNoteRecord>,
+  ): Boolean {
+    val editor = prefs.edit()
+    for (id in removals) {
+      editor.remove(id)
+    }
+    for (record in upserts) {
+      editor.putString(record.id, encodeRecord(record))
+    }
+    return editor.commit()
+  }
+
+  private fun encodeRecord(record: SharedPrefsNoteRecord): String {
+    return JSONObject()
+      .apply {
+        put(KEY_ID, record.id)
+        put(KEY_TITLE, record.title)
+        put(KEY_CONTENT, record.content)
+        put(KEY_CREATED_AT, record.createdAt)
+        put(KEY_UPDATED_AT, record.updatedAt)
+        put(KEY_ORIGIN, record.origin.name)
+      }
+      .toString()
+  }
+
+  private fun parseRecord(fallbackId: String, rawJson: String): SharedPrefsNoteRecord? {
+    return try {
+      val obj = JSONObject(rawJson)
+      val id = obj.optString(KEY_ID, fallbackId).ifBlank { fallbackId }
+      val title = obj.getString(KEY_TITLE)
+      val content = obj.getString(KEY_CONTENT)
+      val createdAt = obj.getLong(KEY_CREATED_AT)
+      val updatedAt = obj.getLong(KEY_UPDATED_AT)
+      val originRaw = obj.optString(KEY_ORIGIN, PrefsOrigin.SHARED_PREFERENCES.name)
+      val origin =
+        PrefsOrigin.entries.firstOrNull { it.name == originRaw } ?: PrefsOrigin.SHARED_PREFERENCES
+      SharedPrefsNoteRecord(
+        id = id,
+        title = title,
+        content = content,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        origin = origin,
+      )
+    } catch (_: JSONException) {
+      null
+    }
+  }
+
+  companion object {
+    const val PREFS_FILE_NAME = "notes_prefs"
+    private const val KEY_ID = "id"
+    private const val KEY_TITLE = "title"
+    private const val KEY_CONTENT = "content"
+    private const val KEY_CREATED_AT = "createdAt"
+    private const val KEY_UPDATED_AT = "updatedAt"
+    private const val KEY_ORIGIN = "origin"
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/data/repository/NotesRepository.kt
+====================================================================================================
+package com.example.data.repository
+
+import com.example.data.local.SharedPrefsNoteStore
+import com.example.data.local.SqliteNoteStore
+import com.example.data.model.Note
+import com.example.data.model.NoteDisplaySource
+import com.example.data.model.NotesSnapshot
+import com.example.data.model.PrefsOrigin
+import com.example.data.model.SharedPrefsNoteRecord
+import com.example.data.model.SqliteNoteRecord
+import com.example.data.model.StorageMethod
+import com.example.data.model.SyncResult
+import java.util.UUID
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+
+class NotesRepository(
+  private val sqliteStore: SqliteNoteStore,
+  private val sharedPrefsStore: SharedPrefsNoteStore,
+  private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+  private val clock: () -> Long = { System.currentTimeMillis() },
+  private val idGenerator: () -> String = { UUID.randomUUID().toString() },
+) {
+  private val mutex = Mutex()
+
+  suspend fun loadSnapshot(): NotesSnapshot =
+    withContext(ioDispatcher) {
+      mutex.withLock { readSnapshotLocked() }
+    }
+
+  suspend fun createNote(
+    title: String,
+    content: String,
+    storageMethod: StorageMethod,
+  ): Boolean =
+    withContext(ioDispatcher) {
+      mutex.withLock {
+        val now = clock()
+        val id = generateUniqueIdLocked()
+        val trimmedTitle = title.trim()
+        val trimmedContent = content.trim()
+        when (storageMethod) {
+          StorageMethod.SQLITE -> {
+            sqliteStore.insertNote(
+              SqliteNoteRecord(
+                id = id,
+                title = trimmedTitle,
+                content = trimmedContent,
+                createdAt = now,
+                updatedAt = now,
+                isSynced = false,
+                lastSyncedAt = null,
+              )
+            )
+          }
+          StorageMethod.SHARED_PREFERENCES -> {
+            sharedPrefsStore.saveNote(
+              SharedPrefsNoteRecord(
+                id = id,
+                title = trimmedTitle,
+                content = trimmedContent,
+                createdAt = now,
+                updatedAt = now,
+                origin = PrefsOrigin.SHARED_PREFERENCES,
+              )
+            )
+          }
+        }
+      }
+    }
+
+  suspend fun updateNote(
+    id: String,
+    title: String,
+    content: String,
+    storageMethod: StorageMethod,
+  ): Boolean =
+    withContext(ioDispatcher) {
+      mutex.withLock {
+        val now = clock()
+        val trimmedTitle = title.trim()
+        val trimmedContent = content.trim()
+        when (storageMethod) {
+          StorageMethod.SQLITE -> {
+            sqliteStore.updateNote(
+              id = id,
+              title = trimmedTitle,
+              content = trimmedContent,
+              updatedAt = now,
+            )
+          }
+          StorageMethod.SHARED_PREFERENCES -> {
+            val existing = sharedPrefsStore.getNoteById(id) ?: return@withLock false
+            sharedPrefsStore.saveNote(
+              existing.copy(
+                title = trimmedTitle,
+                content = trimmedContent,
+                updatedAt = now,
+                origin = PrefsOrigin.SHARED_PREFERENCES,
+              )
+            )
+          }
+        }
+      }
+    }
+
+  suspend fun deleteNote(note: Note): Boolean =
+    withContext(ioDispatcher) {
+      mutex.withLock {
+        when (note.storageMethod) {
+          StorageMethod.SQLITE -> {
+            val prefsEntry = sharedPrefsStore.getNoteById(note.id)
+            val hasSyncedCopy = prefsEntry?.origin == PrefsOrigin.SYNCED_FROM_SQLITE
+            sqliteStore.deleteNoteWithTombstone(
+              noteId = note.id,
+              hasSyncedCopyInPrefs = hasSyncedCopy,
+              deletedAt = clock(),
+            )
+          }
+          StorageMethod.SHARED_PREFERENCES -> {
+            sharedPrefsStore.deleteNote(note.id)
+          }
+        }
+      }
+    }
+
+  suspend fun syncSqliteToSharedPreferences(): SyncResult =
+    withContext(ioDispatcher) {
+      mutex.withLock {
+        val sqliteNotes = sqliteStore.getAllNotes()
+        val pendingDeletedIds = sqliteStore.getPendingDeletedIds()
+        val prefsRecords = sharedPrefsStore.getAllNotes()
+
+        val activeSqliteIds = sqliteNotes.map { it.id }.toSet()
+        val prefsMap = prefsRecords.associateBy { it.id }
+        val usedIds = (activeSqliteIds + prefsMap.keys).toMutableSet()
+
+        val removals = mutableSetOf<String>()
+        val upserts = mutableListOf<SharedPrefsNoteRecord>()
+        val syncedNoteIds = sqliteNotes.map { it.id }
+
+        var inserted = 0
+        var updated = 0
+        var deleted = 0
+        var collisionRekeyed = 0
+
+        // 1. Process deletion tombstones for notes removed from SQLite.
+        for (tombstoneId in pendingDeletedIds) {
+          if (tombstoneId in activeSqliteIds) continue
+          val existingPrefs = prefsMap[tombstoneId]
+          if (existingPrefs != null && existingPrefs.origin == PrefsOrigin.SYNCED_FROM_SQLITE) {
+            removals.add(tombstoneId)
+            deleted++
+          }
+        }
+
+        // 2. Apply SQLite source-of-truth insertions and updates with origin protection.
+        for (sq in sqliteNotes) {
+          val desired =
+            SharedPrefsNoteRecord(
+              id = sq.id,
+              title = sq.title,
+              content = sq.content,
+              createdAt = sq.createdAt,
+              updatedAt = sq.updatedAt,
+              origin = PrefsOrigin.SYNCED_FROM_SQLITE,
+            )
+          val existing = prefsMap[sq.id]
+          when {
+            existing == null -> {
+              upserts.add(desired)
+              inserted++
+            }
+            existing.origin == PrefsOrigin.SYNCED_FROM_SQLITE -> {
+              if (existing != desired) {
+                upserts.add(desired)
+                updated++
+              }
+            }
+            existing.origin == PrefsOrigin.SHARED_PREFERENCES -> {
+              // Unexpected UUID collision: preserve independent SharedPreferences note under a new UUID.
+              var rekeyId = idGenerator()
+              while (!usedIds.add(rekeyId)) {
+                rekeyId = idGenerator()
+              }
+              upserts.add(existing.copy(id = rekeyId, origin = PrefsOrigin.SHARED_PREFERENCES))
+              upserts.add(desired)
+              collisionRekeyed++
+              inserted++
+            }
+          }
+        }
+
+        // Stage 1: Commit SharedPreferences batch synchronously and verify disk flush.
+        if (removals.isNotEmpty() || upserts.isNotEmpty()) {
+          val committed =
+            try {
+              sharedPrefsStore.applySyncBatch(removals = removals, upserts = upserts)
+            } catch (_: Exception) {
+              false
+            }
+          if (!committed) {
+            return@withLock SyncResult.Failure
+          }
+        }
+
+        // Stage 2: Finalize SQLite sync flags and clear processed tombstones only after Stage 1 succeeds.
+        val needsSqliteFinalization =
+          pendingDeletedIds.isNotEmpty() || sqliteNotes.any { !it.isSynced } || upserts.isNotEmpty()
+        if (needsSqliteFinalization) {
+          try {
+            sqliteStore.finalizeSyncMetadata(
+              syncedNoteIds = syncedNoteIds,
+              processedTombstoneIds = pendingDeletedIds,
+              syncTimestamp = clock(),
+            )
+          } catch (_: Exception) {
+            // Pending tombstones and is_synced flags remain in SQLite for idempotent retry.
+            return@withLock SyncResult.Failure
+          }
+        }
+
+        SyncResult.Success(
+          inserted = inserted,
+          updated = updated,
+          deleted = deleted,
+          collisionRekeyed = collisionRekeyed,
+        )
+      }
+    }
+
+  private fun generateUniqueIdLocked(): String {
+    val existingIds =
+      (sqliteStore.getAllNotes().map { it.id } + sharedPrefsStore.getAllNotes().map { it.id })
+        .toSet()
+    var candidate = idGenerator()
+    while (candidate in existingIds) {
+      candidate = idGenerator()
+    }
+    return candidate
+  }
+
+  private fun readSnapshotLocked(): NotesSnapshot {
+    val sqliteRecords = sqliteStore.getAllNotes()
+    val pendingDeletedIds = sqliteStore.getPendingDeletedIds()
+    val prefsRecords = sharedPrefsStore.getAllNotes()
+    val prefsById = prefsRecords.associateBy { it.id }
+
+    var pendingNoteSyncs = 0
+    val sqliteUiNotes =
+      sqliteRecords.map { sq ->
+        val mirrored = prefsById[sq.id]?.takeIf { it.origin == PrefsOrigin.SYNCED_FROM_SQLITE }
+        val isMirroredAndCurrent =
+          sq.isSynced &&
+            mirrored != null &&
+            mirrored.title == sq.title &&
+            mirrored.content == sq.content &&
+            mirrored.updatedAt == sq.updatedAt &&
+            mirrored.createdAt == sq.createdAt
+        if (!isMirroredAndCurrent) {
+          pendingNoteSyncs++
+        }
+        Note(
+          id = sq.id,
+          title = sq.title,
+          content = sq.content,
+          createdAt = sq.createdAt,
+          updatedAt = sq.updatedAt,
+          storageMethod = StorageMethod.SQLITE,
+          isSynced = isMirroredAndCurrent,
+          displaySource =
+            if (mirrored != null) NoteDisplaySource.SYNCED_IN_BOTH else NoteDisplaySource.SQLITE_ONLY,
+        )
+      }
+
+    val spOnlyUiNotes =
+      prefsRecords
+        .filter { it.origin == PrefsOrigin.SHARED_PREFERENCES }
+        .map { sp ->
+          Note(
+            id = sp.id,
+            title = sp.title,
+            content = sp.content,
+            createdAt = sp.createdAt,
+            updatedAt = sp.updatedAt,
+            storageMethod = StorageMethod.SHARED_PREFERENCES,
+            isSynced = false,
+            displaySource = NoteDisplaySource.SHARED_PREFS_ONLY,
+          )
+        }
+
+    val sqliteMapById = sqliteUiNotes.associateBy { it.id }
+    val prefsTabNotes =
+      prefsRecords
+        .map { sp ->
+          when (sp.origin) {
+            PrefsOrigin.SHARED_PREFERENCES ->
+              Note(
+                id = sp.id,
+                title = sp.title,
+                content = sp.content,
+                createdAt = sp.createdAt,
+                updatedAt = sp.updatedAt,
+                storageMethod = StorageMethod.SHARED_PREFERENCES,
+                isSynced = false,
+                displaySource = NoteDisplaySource.SHARED_PREFS_ONLY,
+              )
+            PrefsOrigin.SYNCED_FROM_SQLITE -> {
+              // SQLite remains the authoritative source of truth when a synced note exists in both.
+              val sqliteOwner = sqliteMapById[sp.id]
+              Note(
+                id = sp.id,
+                title = sqliteOwner?.title ?: sp.title,
+                content = sqliteOwner?.content ?: sp.content,
+                createdAt = sqliteOwner?.createdAt ?: sp.createdAt,
+                updatedAt = sqliteOwner?.updatedAt ?: sp.updatedAt,
+                storageMethod =
+                  if (sqliteOwner != null) StorageMethod.SQLITE
+                  else StorageMethod.SHARED_PREFERENCES,
+                isSynced = sqliteOwner != null,
+                displaySource =
+                  if (sqliteOwner != null) NoteDisplaySource.SYNCED_IN_BOTH
+                  else NoteDisplaySource.SHARED_PREFS_ONLY,
+              )
+            }
+          }
+        }
+        .sortedByDescending { it.updatedAt }
+
+    val allNotes = (sqliteUiNotes + spOnlyUiNotes).sortedByDescending { it.updatedAt }
+
+    return NotesSnapshot(
+      allNotes = allNotes,
+      sqliteNotes = sqliteUiNotes,
+      sharedPrefsNotes = prefsTabNotes,
+      sqliteCount = sqliteUiNotes.size,
+      sharedPrefsCount = prefsTabNotes.size,
+      pendingSyncCount = pendingNoteSyncs + pendingDeletedIds.size,
+    )
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/notes/NotesViewModel.kt
+====================================================================================================
+package com.example.ui.notes
+
+import androidx.annotation.StringRes
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.R
+import com.example.data.model.Note
+import com.example.data.model.NoteFilterTab
+import com.example.data.model.NotesSnapshot
+import com.example.data.model.StorageMethod
+import com.example.data.model.SyncResult
+import com.example.data.repository.NotesRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class NoteEditorState(
+  val isVisible: Boolean = false,
+  val editingNoteId: String? = null,
+  val title: String = "",
+  val content: String = "",
+  val storageMethod: StorageMethod = StorageMethod.SQLITE,
+  @param:StringRes val titleErrorRes: Int? = null,
+  @param:StringRes val contentErrorRes: Int? = null,
+  val isSaving: Boolean = false,
+) {
+  val isEditMode: Boolean
+    get() = editingNoteId != null
+}
+
+data class UiFeedbackEvent(
+  @param:StringRes val messageRes: Int,
+  val formatArgs: List<Any> = emptyList(),
+)
+
+data class NotesUiState(
+  val isLoading: Boolean = true,
+  val selectedTab: NoteFilterTab = NoteFilterTab.ALL,
+  val allNotes: List<Note> = emptyList(),
+  val sqliteNotes: List<Note> = emptyList(),
+  val sharedPrefsNotes: List<Note> = emptyList(),
+  val sqliteCount: Int = 0,
+  val sharedPrefsCount: Int = 0,
+  val pendingSyncCount: Int = 0,
+  val isSyncing: Boolean = false,
+  val editorState: NoteEditorState = NoteEditorState(),
+  val notePendingDelete: Note? = null,
+) {
+  val allCount: Int
+    get() = allNotes.size
+
+  val displayedNotes: List<Note>
+    get() =
+      when (selectedTab) {
+        NoteFilterTab.ALL -> allNotes
+        NoteFilterTab.SQLITE -> sqliteNotes
+        NoteFilterTab.SHARED_PREFERENCES -> sharedPrefsNotes
+      }
+}
+
+class NotesViewModel(private val repository: NotesRepository) : ViewModel() {
+
+  private val _uiState = MutableStateFlow(NotesUiState())
+  val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
+
+  private val _feedbackEvents = Channel<UiFeedbackEvent>(Channel.BUFFERED)
+  val feedbackEvents = _feedbackEvents.receiveAsFlow()
+
+  init {
+    refreshNotes()
+  }
+
+  fun refreshNotes() {
+    viewModelScope.launch {
+      val snapshot = repository.loadSnapshot()
+      applySnapshot(snapshot)
+    }
+  }
+
+  fun selectTab(tab: NoteFilterTab) {
+    _uiState.update { it.copy(selectedTab = tab) }
+  }
+
+  fun openCreateEditor() {
+    val defaultStorage =
+      when (_uiState.value.selectedTab) {
+        NoteFilterTab.SHARED_PREFERENCES -> StorageMethod.SHARED_PREFERENCES
+        NoteFilterTab.ALL,
+        NoteFilterTab.SQLITE -> StorageMethod.SQLITE
+      }
+    _uiState.update {
+      it.copy(
+        editorState =
+          NoteEditorState(
+            isVisible = true,
+            editingNoteId = null,
+            title = "",
+            content = "",
+            storageMethod = defaultStorage,
+          )
+      )
+    }
+  }
+
+  fun openEditEditor(note: Note) {
+    _uiState.update {
+      it.copy(
+        editorState =
+          NoteEditorState(
+            isVisible = true,
+            editingNoteId = note.id,
+            title = note.title,
+            content = note.content,
+            storageMethod = note.storageMethod,
+          )
+      )
+    }
+  }
+
+  fun dismissEditor() {
+    _uiState.update { it.copy(editorState = NoteEditorState()) }
+  }
+
+  fun onEditorTitleChanged(value: String) {
+    _uiState.update { state ->
+      state.copy(
+        editorState =
+          state.editorState.copy(
+            title = value,
+            titleErrorRes = if (value.isNotBlank()) null else state.editorState.titleErrorRes,
+          )
+      )
+    }
+  }
+
+  fun onEditorContentChanged(value: String) {
+    _uiState.update { state ->
+      state.copy(
+        editorState =
+          state.editorState.copy(
+            content = value,
+            contentErrorRes = if (value.isNotBlank()) null else state.editorState.contentErrorRes,
+          )
+      )
+    }
+  }
+
+  fun onEditorStorageSelected(method: StorageMethod) {
+    _uiState.update { state ->
+      if (state.editorState.isEditMode) return@update state
+      state.copy(editorState = state.editorState.copy(storageMethod = method))
+    }
+  }
+
+  fun saveNote() {
+    val editor = _uiState.value.editorState
+    if (editor.isSaving) return
+
+    val titleError = if (editor.title.isBlank()) R.string.error_title_empty else null
+    val contentError = if (editor.content.isBlank()) R.string.error_content_empty else null
+    if (titleError != null || contentError != null) {
+      _uiState.update {
+        it.copy(
+          editorState =
+            editor.copy(
+              titleErrorRes = titleError,
+              contentErrorRes = contentError,
+            )
+        )
+      }
+      return
+    }
+
+    _uiState.update { it.copy(editorState = editor.copy(isSaving = true)) }
+
+    viewModelScope.launch {
+      val editId = editor.editingNoteId
+      val success =
+        if (editId == null) {
+          repository.createNote(
+            title = editor.title,
+            content = editor.content,
+            storageMethod = editor.storageMethod,
+          )
+        } else {
+          repository.updateNote(
+            id = editId,
+            title = editor.title,
+            content = editor.content,
+            storageMethod = editor.storageMethod,
+          )
+        }
+
+      val snapshot = repository.loadSnapshot()
+      if (success) {
+        _uiState.update {
+          it.copy(
+            isLoading = false,
+            allNotes = snapshot.allNotes,
+            sqliteNotes = snapshot.sqliteNotes,
+            sharedPrefsNotes = snapshot.sharedPrefsNotes,
+            sqliteCount = snapshot.sqliteCount,
+            sharedPrefsCount = snapshot.sharedPrefsCount,
+            pendingSyncCount = snapshot.pendingSyncCount,
+            editorState = NoteEditorState(),
+          )
+        }
+        val msgRes =
+          when {
+            editId != null -> R.string.msg_note_updated
+            editor.storageMethod == StorageMethod.SQLITE -> R.string.msg_note_created_sqlite
+            else -> R.string.msg_note_created_prefs
+          }
+        _feedbackEvents.send(UiFeedbackEvent(msgRes))
+      } else {
+        _uiState.update {
+          it.copy(
+            isLoading = false,
+            allNotes = snapshot.allNotes,
+            sqliteNotes = snapshot.sqliteNotes,
+            sharedPrefsNotes = snapshot.sharedPrefsNotes,
+            sqliteCount = snapshot.sqliteCount,
+            sharedPrefsCount = snapshot.sharedPrefsCount,
+            pendingSyncCount = snapshot.pendingSyncCount,
+            editorState = it.editorState.copy(isSaving = false),
+          )
+        }
+        _feedbackEvents.send(UiFeedbackEvent(R.string.msg_operation_failed))
+      }
+    }
+  }
+
+  fun requestDeleteNote(note: Note) {
+    _uiState.update { it.copy(notePendingDelete = note) }
+  }
+
+  fun dismissDeleteDialog() {
+    _uiState.update { it.copy(notePendingDelete = null) }
+  }
+
+  fun confirmDeleteNote() {
+    val note = _uiState.value.notePendingDelete ?: return
+    _uiState.update { it.copy(notePendingDelete = null) }
+
+    viewModelScope.launch {
+      val deleted = repository.deleteNote(note)
+      val snapshot = repository.loadSnapshot()
+      applySnapshot(snapshot)
+      _feedbackEvents.send(
+        UiFeedbackEvent(if (deleted) R.string.msg_note_deleted else R.string.msg_operation_failed)
+      )
+    }
+  }
+
+  fun syncNotes() {
+    if (_uiState.value.isSyncing) return
+    _uiState.update { it.copy(isSyncing = true) }
+
+    viewModelScope.launch {
+      val result = repository.syncSqliteToSharedPreferences()
+      val snapshot = repository.loadSnapshot()
+      _uiState.update {
+        it.copy(
+          isLoading = false,
+          isSyncing = false,
+          allNotes = snapshot.allNotes,
+          sqliteNotes = snapshot.sqliteNotes,
+          sharedPrefsNotes = snapshot.sharedPrefsNotes,
+          sqliteCount = snapshot.sqliteCount,
+          sharedPrefsCount = snapshot.sharedPrefsCount,
+          pendingSyncCount = snapshot.pendingSyncCount,
+        )
+      }
+      when (result) {
+        is SyncResult.Success -> {
+          if (result.totalChanges == 0) {
+            _feedbackEvents.send(UiFeedbackEvent(R.string.msg_sync_already_up_to_date))
+          } else {
+            _feedbackEvents.send(
+              UiFeedbackEvent(
+                messageRes = R.string.msg_sync_success_format,
+                formatArgs = listOf(result.inserted, result.updated, result.deleted),
+              )
+            )
+          }
+        }
+        SyncResult.Failure -> {
+          _feedbackEvents.send(UiFeedbackEvent(R.string.msg_sync_failed))
+        }
+      }
+    }
+  }
+
+  private fun applySnapshot(snapshot: NotesSnapshot) {
+    _uiState.update {
+      it.copy(
+        isLoading = false,
+        allNotes = snapshot.allNotes,
+        sqliteNotes = snapshot.sqliteNotes,
+        sharedPrefsNotes = snapshot.sharedPrefsNotes,
+        sqliteCount = snapshot.sqliteCount,
+        sharedPrefsCount = snapshot.sharedPrefsCount,
+        pendingSyncCount = snapshot.pendingSyncCount,
+      )
+    }
+  }
+}
+
+class NotesViewModelFactory(private val repository: NotesRepository) : ViewModelProvider.Factory {
+  @Suppress("UNCHECKED_CAST")
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    if (modelClass.isAssignableFrom(NotesViewModel::class.java)) {
+      return NotesViewModel(repository) as T
+    }
+    throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/notes/NoteComponents.kt
+====================================================================================================
+package com.example.ui.notes
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudDone
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.example.R
+import com.example.data.model.Note
+import com.example.data.model.NoteDisplaySource
+import com.example.data.model.NoteFilterTab
+import com.example.ui.theme.LocalStorageColors
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+@Composable
+fun StorageBadge(
+  displaySource: NoteDisplaySource,
+  modifier: Modifier = Modifier,
+) {
+  val storageColors = LocalStorageColors.current
+  val (labelRes, bgColor, fgColor, icon) =
+    when (displaySource) {
+      NoteDisplaySource.SQLITE_ONLY ->
+        Quad(
+          R.string.badge_sqlite,
+          storageColors.sqliteContainer,
+          storageColors.onSqliteContainer,
+          Icons.Outlined.Storage,
+        )
+      NoteDisplaySource.SHARED_PREFS_ONLY ->
+        Quad(
+          R.string.badge_shared_prefs,
+          storageColors.prefsContainer,
+          storageColors.onPrefsContainer,
+          Icons.Outlined.Settings,
+        )
+      NoteDisplaySource.SYNCED_IN_BOTH ->
+        Quad(
+          R.string.badge_synced,
+          storageColors.syncedContainer,
+          storageColors.onSyncedContainer,
+          Icons.Outlined.CloudDone,
+        )
+    }
+
+  Surface(
+    modifier = modifier,
+    shape = RoundedCornerShape(999.dp),
+    color = bgColor,
+  ) {
+    Row(
+      modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = fgColor,
+        modifier = Modifier.size(14.dp),
+      )
+      Text(
+        text = stringResource(labelRes),
+        style = MaterialTheme.typography.labelMedium,
+        color = fgColor,
+      )
+    }
+  }
+}
+
+@Composable
+fun StorageFilterTabs(
+  selectedTab: NoteFilterTab,
+  allCount: Int,
+  sqliteCount: Int,
+  sharedPrefsCount: Int,
+  onSelectTab: (NoteFilterTab) -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val tabs =
+    listOf(
+      Triple(NoteFilterTab.ALL, R.string.tab_all, allCount) to "tab_all",
+      Triple(NoteFilterTab.SQLITE, R.string.tab_sqlite, sqliteCount) to "tab_sqlite",
+      Triple(NoteFilterTab.SHARED_PREFERENCES, R.string.tab_shared_prefs, sharedPrefsCount) to
+        "tab_shared_prefs",
+    )
+
+  Surface(
+    modifier = modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(14.dp),
+    color = MaterialTheme.colorScheme.surfaceVariant,
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+  ) {
+    Row(
+      modifier = Modifier.fillMaxWidth().padding(4.dp),
+      horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+      tabs.forEach { (tabInfo, tag) ->
+        val (tab, labelRes, count) = tabInfo
+        val isSelected = selectedTab == tab
+        val containerColor by
+          animateColorAsState(
+            targetValue =
+              if (isSelected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
+            label = "tab_bg",
+          )
+        val textColor by
+          animateColorAsState(
+            targetValue =
+              if (isSelected) MaterialTheme.colorScheme.primary
+              else MaterialTheme.colorScheme.onSurfaceVariant,
+            label = "tab_fg",
+          )
+
+        Box(
+          modifier =
+            Modifier.weight(1f)
+              .minimumInteractiveComponentSize()
+              .clip(RoundedCornerShape(10.dp))
+              .background(containerColor)
+              .clickable { onSelectTab(tab) }
+              .testTag(tag)
+              .padding(horizontal = 8.dp, vertical = 10.dp),
+          contentAlignment = Alignment.Center,
+        ) {
+          Text(
+            text = stringResource(R.string.tab_count_format, stringResource(labelRes), count),
+            style = MaterialTheme.typography.labelLarge,
+            color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+          )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+fun SyncStatusBanner(
+  pendingSyncCount: Int,
+  isSyncing: Boolean,
+  modifier: Modifier = Modifier,
+) {
+  val storageColors = LocalStorageColors.current
+  val hasPending = pendingSyncCount > 0
+  val bgColor =
+    if (hasPending) storageColors.pendingContainer else MaterialTheme.colorScheme.surfaceVariant
+  val fgColor =
+    if (hasPending) storageColors.onPendingContainer
+    else MaterialTheme.colorScheme.onSurfaceVariant
+
+  Surface(
+    modifier = modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(12.dp),
+    color = bgColor,
+  ) {
+    Row(
+      modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      Icon(
+        imageVector = if (hasPending) Icons.Outlined.Sync else Icons.Outlined.CloudDone,
+        contentDescription = null,
+        tint = fgColor,
+        modifier = Modifier.size(16.dp),
+      )
+      Text(
+        text =
+          when {
+            isSyncing -> stringResource(R.string.sync_in_progress)
+            hasPending -> stringResource(R.string.sync_status_pending_format, pendingSyncCount)
+            else -> stringResource(R.string.sync_status_all_synced)
+          },
+        style = MaterialTheme.typography.labelMedium,
+        color = fgColor,
+      )
+    }
+  }
+}
+
+@Composable
+fun NoteCard(
+  note: Note,
+  onClick: () -> Unit,
+  onDeleteClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val formattedDate = remember(note.updatedAt) { formatTimestamp(note.updatedAt) }
+  val deleteCd = stringResource(R.string.cd_delete_note, note.title)
+
+  Surface(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(16.dp))
+        .clickable(onClick = onClick)
+        .testTag("note_card_${note.id}"),
+    shape = RoundedCornerShape(16.dp),
+    color = MaterialTheme.colorScheme.surface,
+    tonalElevation = 1.dp,
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+  ) {
+    Column(modifier = Modifier.padding(start = 16.dp, top = 14.dp, end = 8.dp, bottom = 14.dp)) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+      ) {
+        StorageBadge(displaySource = note.displaySource)
+        IconButton(
+          onClick = onDeleteClick,
+          modifier = Modifier.minimumInteractiveComponentSize().testTag("delete_note_button_${note.id}"),
+        ) {
+          Icon(
+            imageVector = Icons.Outlined.DeleteOutline,
+            contentDescription = deleteCd,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(6.dp))
+
+      Text(
+        text = note.title,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(end = 8.dp),
+      )
+
+      Spacer(modifier = Modifier.height(6.dp))
+
+      Text(
+        text = note.content,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(end = 8.dp),
+      )
+
+      Spacer(modifier = Modifier.height(12.dp))
+
+      Text(
+        text = stringResource(R.string.note_updated_format, formattedDate),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+  }
+}
+
+@Composable
+fun EmptyNotesView(
+  selectedTab: NoteFilterTab,
+  modifier: Modifier = Modifier,
+) {
+  val (titleRes, subtitleRes) =
+    when (selectedTab) {
+      NoteFilterTab.ALL -> R.string.empty_all_title to R.string.empty_all_subtitle
+      NoteFilterTab.SQLITE -> R.string.empty_sqlite_title to R.string.empty_sqlite_subtitle
+      NoteFilterTab.SHARED_PREFERENCES ->
+        R.string.empty_prefs_title to R.string.empty_prefs_subtitle
+    }
+
+  Surface(
+    modifier = modifier.fillMaxWidth().padding(top = 24.dp),
+    shape = RoundedCornerShape(20.dp),
+    color = MaterialTheme.colorScheme.surface,
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+  ) {
+    Column(
+      modifier = Modifier.padding(horizontal = 24.dp, vertical = 36.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+      Box(
+        modifier =
+          Modifier.size(64.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center,
+      ) {
+        Icon(
+          imageVector = Icons.Outlined.Description,
+          contentDescription = stringResource(R.string.cd_empty_notebook),
+          tint = MaterialTheme.colorScheme.primary,
+          modifier = Modifier.size(30.dp),
+        )
+      }
+      Text(
+        text = stringResource(titleRes),
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.Center,
+      )
+      Text(
+        text = stringResource(subtitleRes),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+      )
+    }
+  }
+}
+
+@Composable
+fun DeleteNoteDialog(
+  note: Note,
+  onConfirm: () -> Unit,
+  onDismiss: () -> Unit,
+) {
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = {
+      Text(
+        text = stringResource(R.string.dialog_delete_title),
+        style = MaterialTheme.typography.titleLarge,
+      )
+    },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+          text = stringResource(R.string.dialog_delete_message, note.title),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+        if (note.displaySource == NoteDisplaySource.SYNCED_IN_BOTH) {
+          Text(
+            text = stringResource(R.string.dialog_delete_synced_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+    },
+    confirmButton = {
+      Button(
+        onClick = onConfirm,
+        colors =
+          ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError,
+          ),
+        modifier = Modifier.testTag("confirm_delete_button"),
+      ) {
+        Text(text = stringResource(R.string.action_delete))
+      }
+    },
+    dismissButton = {
+      TextButton(
+        onClick = onDismiss,
+        modifier = Modifier.testTag("cancel_delete_button"),
+      ) {
+        Text(text = stringResource(R.string.action_cancel))
+      }
+    },
+  )
+}
+
+private fun formatTimestamp(epochMillis: Long): String {
+  val formatter = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault())
+  return formatter.format(Date(epochMillis))
+}
+
+private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/notes/NoteEditorSheet.kt
+====================================================================================================
+package com.example.ui.notes
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.example.R
+import com.example.data.model.StorageMethod
+import com.example.ui.theme.LocalStorageColors
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteEditorSheet(
+  editorState: NoteEditorState,
+  onTitleChange: (String) -> Unit,
+  onContentChange: (String) -> Unit,
+  onStorageSelect: (StorageMethod) -> Unit,
+  onSave: () -> Unit,
+  onDismiss: () -> Unit,
+) {
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+  ModalBottomSheet(
+    onDismissRequest = onDismiss,
+    sheetState = sheetState,
+    containerColor = MaterialTheme.colorScheme.surface,
+  ) {
+    Column(
+      modifier =
+        Modifier.fillMaxWidth()
+          .verticalScroll(rememberScrollState())
+          .padding(horizontal = 20.dp)
+          .navigationBarsPadding()
+          .imePadding(),
+      verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+      ) {
+        Text(
+          text =
+            stringResource(
+              if (editorState.isEditMode) R.string.editor_title_edit
+              else R.string.editor_title_create
+            ),
+          style = MaterialTheme.typography.titleLarge,
+          color = MaterialTheme.colorScheme.onSurface,
+        )
+        IconButton(
+          onClick = onDismiss,
+          modifier = Modifier.minimumInteractiveComponentSize().testTag("close_editor_button"),
+        ) {
+          Icon(
+            imageVector = Icons.Outlined.Close,
+            contentDescription = stringResource(R.string.cd_close_editor),
+          )
+        }
+      }
+
+      OutlinedTextField(
+        value = editorState.title,
+        onValueChange = onTitleChange,
+        label = { Text(text = stringResource(R.string.label_note_title)) },
+        placeholder = { Text(text = stringResource(R.string.hint_note_title)) },
+        singleLine = true,
+        isError = editorState.titleErrorRes != null,
+        supportingText = {
+          AnimatedVisibility(visible = editorState.titleErrorRes != null) {
+            editorState.titleErrorRes?.let { errorRes ->
+              Text(
+                text = stringResource(errorRes),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.testTag("title_error_text"),
+              )
+            }
+          }
+        },
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().testTag("title_input"),
+      )
+
+      OutlinedTextField(
+        value = editorState.content,
+        onValueChange = onContentChange,
+        label = { Text(text = stringResource(R.string.label_note_content)) },
+        placeholder = { Text(text = stringResource(R.string.hint_note_content)) },
+        minLines = 4,
+        maxLines = 8,
+        isError = editorState.contentErrorRes != null,
+        supportingText = {
+          AnimatedVisibility(visible = editorState.contentErrorRes != null) {
+            editorState.contentErrorRes?.let { errorRes ->
+              Text(
+                text = stringResource(errorRes),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.testTag("content_error_text"),
+              )
+            }
+          }
+        },
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().testTag("content_input"),
+      )
+
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+          text = stringResource(R.string.label_storage_method),
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        if (editorState.isEditMode) {
+          LockedStorageIndicator(storageMethod = editorState.storageMethod)
+          Text(
+            text = stringResource(R.string.helper_storage_locked),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        } else {
+          StorageMethodSelector(
+            selectedMethod = editorState.storageMethod,
+            onSelect = onStorageSelect,
+          )
+          Text(
+            text = stringResource(R.string.helper_storage_create),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+      ) {
+        OutlinedButton(
+          onClick = onDismiss,
+          modifier =
+            Modifier.weight(1f).minimumInteractiveComponentSize().testTag("cancel_editor_button"),
+          shape = RoundedCornerShape(12.dp),
+        ) {
+          Text(text = stringResource(R.string.action_cancel))
+        }
+        Button(
+          onClick = onSave,
+          enabled = !editorState.isSaving,
+          modifier =
+            Modifier.weight(1f).minimumInteractiveComponentSize().testTag("save_note_button"),
+          shape = RoundedCornerShape(12.dp),
+        ) {
+          Text(
+            text =
+              stringResource(
+                if (editorState.isEditMode) R.string.action_update else R.string.action_save
+              )
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(12.dp))
+    }
+  }
+}
+
+@Composable
+private fun StorageMethodSelector(
+  selectedMethod: StorageMethod,
+  onSelect: (StorageMethod) -> Unit,
+) {
+  val storageColors = LocalStorageColors.current
+
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
+  ) {
+    StorageOptionCard(
+      label = stringResource(R.string.storage_sqlite),
+      icon = Icons.Outlined.Storage,
+      selected = selectedMethod == StorageMethod.SQLITE,
+      selectedBg = storageColors.sqliteContainer,
+      selectedFg = storageColors.onSqliteContainer,
+      onClick = { onSelect(StorageMethod.SQLITE) },
+      modifier = Modifier.weight(1f).testTag("storage_sqlite_chip"),
+    )
+    StorageOptionCard(
+      label = stringResource(R.string.storage_shared_prefs),
+      icon = Icons.Outlined.Settings,
+      selected = selectedMethod == StorageMethod.SHARED_PREFERENCES,
+      selectedBg = storageColors.prefsContainer,
+      selectedFg = storageColors.onPrefsContainer,
+      onClick = { onSelect(StorageMethod.SHARED_PREFERENCES) },
+      modifier = Modifier.weight(1f).testTag("storage_prefs_chip"),
+    )
+  }
+}
+
+@Composable
+private fun StorageOptionCard(
+  label: String,
+  icon: androidx.compose.ui.graphics.vector.ImageVector,
+  selected: Boolean,
+  selectedBg: androidx.compose.ui.graphics.Color,
+  selectedFg: androidx.compose.ui.graphics.Color,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val bg = if (selected) selectedBg else MaterialTheme.colorScheme.surfaceVariant
+  val fg = if (selected) selectedFg else MaterialTheme.colorScheme.onSurfaceVariant
+  val border = if (selected) selectedFg else MaterialTheme.colorScheme.outline
+
+  Surface(
+    modifier =
+      modifier
+        .minimumInteractiveComponentSize()
+        .clip(RoundedCornerShape(12.dp))
+        .clickable(onClick = onClick),
+    shape = RoundedCornerShape(12.dp),
+    color = bg,
+    border = BorderStroke(if (selected) 1.5.dp else 1.dp, border),
+  ) {
+    Row(
+      modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = fg,
+        modifier = Modifier.size(18.dp),
+      )
+      Text(
+        text = label,
+        style = MaterialTheme.typography.labelLarge,
+        color = fg,
+        modifier = Modifier.weight(1f),
+      )
+      if (selected) {
+        Icon(
+          imageVector = Icons.Outlined.CheckCircle,
+          contentDescription = null,
+          tint = fg,
+          modifier = Modifier.size(18.dp),
+        )
+      }
+    }
+  }
+}
+
+@Composable
+private fun LockedStorageIndicator(storageMethod: StorageMethod) {
+  val storageColors = LocalStorageColors.current
+  val (labelRes, bg, fg) =
+    when (storageMethod) {
+      StorageMethod.SQLITE ->
+        Triple(
+          R.string.storage_sqlite,
+          storageColors.sqliteContainer,
+          storageColors.onSqliteContainer,
+        )
+      StorageMethod.SHARED_PREFERENCES ->
+        Triple(
+          R.string.storage_shared_prefs,
+          storageColors.prefsContainer,
+          storageColors.onPrefsContainer,
+        )
+    }
+
+  Surface(
+    modifier = Modifier.fillMaxWidth().testTag("locked_storage_badge"),
+    shape = RoundedCornerShape(12.dp),
+    color = bg,
+    border = BorderStroke(1.dp, fg.copy(alpha = 0.35f)),
+  ) {
+    Row(
+      modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      Icon(
+        imageVector = Icons.Outlined.Lock,
+        contentDescription = stringResource(R.string.cd_storage_locked_icon),
+        tint = fg,
+        modifier = Modifier.size(18.dp),
+      )
+      Text(
+        text = stringResource(labelRes),
+        style = MaterialTheme.typography.labelLarge,
+        color = fg,
+      )
+    }
+  }
+}
+
+====================================================================================================
+FILE: app/src/main/java/com/example/ui/notes/NotesScreen.kt
+====================================================================================================
+package com.example.ui.notes
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.R
+
+@Composable
+fun NotesScreen(
+  viewModel: NotesViewModel,
+  modifier: Modifier = Modifier,
+) {
+  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  val snackbarHostState = remember { SnackbarHostState() }
+  val context = LocalContext.current
+
+  LaunchedEffect(viewModel, context) {
+    viewModel.feedbackEvents.collect { event ->
+      val message =
+        if (event.formatArgs.isEmpty()) {
+          context.getString(event.messageRes)
+        } else {
+          context.getString(event.messageRes, *event.formatArgs.toTypedArray())
+        }
+      snackbarHostState.showSnackbar(message)
+    }
+  }
+
+  Scaffold(
+    modifier = modifier.fillMaxSize(),
+    containerColor = MaterialTheme.colorScheme.background,
+    contentWindowInsets = WindowInsets.safeDrawing,
+    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    floatingActionButton = {
+      ExtendedFloatingActionButton(
+        onClick = viewModel::openCreateEditor,
+        icon = {
+          Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = stringResource(R.string.cd_add_note),
+          )
+        },
+        text = { Text(text = stringResource(R.string.action_new_note)) },
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.testTag("fab_add_note"),
+      )
+    },
+  ) { innerPadding ->
+    Box(
+      modifier = Modifier.fillMaxSize().padding(innerPadding),
+      contentAlignment = Alignment.TopCenter,
+    ) {
+      Column(
+        modifier = Modifier.widthIn(max = 640.dp).fillMaxSize().padding(horizontal = 16.dp),
+      ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              text = stringResource(R.string.app_name),
+              style = MaterialTheme.typography.headlineMedium,
+              color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+              text = stringResource(R.string.app_subtitle),
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
+
+          Spacer(modifier = Modifier.width(12.dp))
+
+          FilledTonalButton(
+            onClick = viewModel::syncNotes,
+            enabled = !uiState.isSyncing,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.minimumInteractiveComponentSize().testTag("sync_button"),
+          ) {
+            if (uiState.isSyncing) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                strokeWidth = 2.dp,
+              )
+            } else {
+              Icon(
+                imageVector = Icons.Outlined.Sync,
+                contentDescription = stringResource(R.string.cd_sync_notes),
+                modifier = Modifier.size(18.dp),
+              )
+            }
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(text = stringResource(R.string.action_sync))
+          }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        SyncStatusBanner(
+          pendingSyncCount = uiState.pendingSyncCount,
+          isSyncing = uiState.isSyncing,
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        StorageFilterTabs(
+          selectedTab = uiState.selectedTab,
+          allCount = uiState.allCount,
+          sqliteCount = uiState.sqliteCount,
+          sharedPrefsCount = uiState.sharedPrefsCount,
+          onSelectTab = viewModel::selectTab,
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        AnimatedVisibility(
+          visible = !uiState.isLoading && uiState.displayedNotes.isEmpty(),
+          enter = fadeIn(),
+          exit = fadeOut(),
+        ) {
+          EmptyNotesView(selectedTab = uiState.selectedTab)
+        }
+
+        AnimatedVisibility(
+          visible = uiState.displayedNotes.isNotEmpty(),
+          enter = fadeIn(),
+          exit = fadeOut(),
+          modifier = Modifier.weight(1f),
+        ) {
+          LazyColumn(
+            modifier = Modifier.fillMaxSize().testTag("notes_list"),
+            contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            items(
+              items = uiState.displayedNotes,
+              key = { note -> "${note.storageMethod.name}_${note.id}" },
+            ) { note ->
+              NoteCard(
+                note = note,
+                onClick = { viewModel.openEditEditor(note) },
+                onDeleteClick = { viewModel.requestDeleteNote(note) },
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (uiState.editorState.isVisible) {
+    NoteEditorSheet(
+      editorState = uiState.editorState,
+      onTitleChange = viewModel::onEditorTitleChanged,
+      onContentChange = viewModel::onEditorContentChanged,
+      onStorageSelect = viewModel::onEditorStorageSelected,
+      onSave = viewModel::saveNote,
+      onDismiss = viewModel::dismissEditor,
+    )
+  }
+
+  uiState.notePendingDelete?.let { pendingNote ->
+    DeleteNoteDialog(
+      note = pendingNote,
+      onConfirm = viewModel::confirmDeleteNote,
+      onDismiss = viewModel::dismissDeleteDialog,
+    )
+  }
+}
+
+====================================================================================================
+FILE: README.md
+====================================================================================================
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/5060594c-042e-4fd2-bd29-a42b4fe4c49d
+
+## Run Locally
+
+**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+
+
+1. Open Android Studio
+2. Select **Open** and choose the directory containing this project
+3. Allow Android Studio to fix any incompatibilities as it imports the project.
+4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
+5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
+6. Run the app on an emulator or physical device
+7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.
+
+
+END OF BUNDLE — 37 text/source files included.

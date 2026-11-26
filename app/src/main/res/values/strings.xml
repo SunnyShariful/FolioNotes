@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">FolioNotes</string>
+    <string name="app_subtitle">Dual-Storage Local Notebook</string>
+
+    <!-- Navigation & Filter Tabs -->
+    <string name="tab_all">All</string>
+    <string name="tab_sqlite">SQLite</string>
+    <string name="tab_shared_prefs">SharedPrefs</string>
+    <string name="tab_count_format">%1$s (%2$d)</string>
+
+    <!-- Storage Names & Badges -->
+    <string name="storage_sqlite">SQLite</string>
+    <string name="storage_shared_prefs">SharedPreferences</string>
+    <string name="badge_sqlite">SQLite</string>
+    <string name="badge_shared_prefs">SharedPrefs</string>
+    <string name="badge_synced">Synced</string>
+
+    <!-- Top Bar & Sync Status -->
+    <string name="action_sync">Sync</string>
+    <string name="cd_sync_notes">Synchronize notes from SQLite to SharedPreferences</string>
+    <string name="sync_status_all_synced">SQLite and SharedPreferences are in sync</string>
+    <string name="sync_status_pending_format">%1$d pending SQLite change(s) ready to sync</string>
+    <string name="sync_in_progress">Synchronizing…</string>
+
+    <!-- Actions & Buttons -->
+    <string name="action_new_note">New Note</string>
+    <string name="cd_add_note">Create a new note</string>
+    <string name="action_save">Save Note</string>
+    <string name="action_update">Update Note</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="cd_delete_note">Delete note %1$s</string>
+    <string name="cd_close_editor">Close note editor</string>
+
+    <!-- Note Editor -->
+    <string name="editor_title_create">Create Note</string>
+    <string name="editor_title_edit">Edit Note</string>
+    <string name="label_note_title">Title</string>
+    <string name="hint_note_title">Enter a clear note title</string>
+    <string name="label_note_content">Content</string>
+    <string name="hint_note_content">Write your note details here…</string>
+    <string name="label_storage_method">Storage Method</string>
+    <string name="helper_storage_create">Choose where this note will be persisted locally.</string>
+    <string name="helper_storage_locked">Storage location is locked to preserve this note\'s original engine.</string>
+    <string name="cd_storage_locked_icon">Storage location locked</string>
+
+    <!-- Input Validation -->
+    <string name="error_title_empty">Title cannot be empty.</string>
+    <string name="error_content_empty">Content cannot be empty.</string>
+
+    <!-- Empty States -->
+    <string name="empty_all_title">No notes yet</string>
+    <string name="empty_all_subtitle">Tap New Note to create a note in SQLite or SharedPreferences.</string>
+    <string name="empty_sqlite_title">No SQLite notes</string>
+    <string name="empty_sqlite_subtitle">Notes saved with SQLite selected will appear here.</string>
+    <string name="empty_prefs_title">No SharedPreferences notes</string>
+    <string name="empty_prefs_subtitle">Create a note in SharedPreferences or tap Sync to mirror SQLite notes.</string>
+    <string name="cd_empty_notebook">Empty notebook illustration</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="dialog_delete_title">Delete Note?</string>
+    <string name="dialog_delete_message">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="dialog_delete_synced_hint">Its synced copy in SharedPreferences will also be queued for removal on your next Sync.</string>
+
+    <!-- Note Card Metadata -->
+    <string name="note_updated_format">Updated %1$s</string>
+
+    <!-- Snackbar Feedback Messages -->
+    <string name="msg_note_created_sqlite">Note saved to SQLite.</string>
+    <string name="msg_note_created_prefs">Note saved to SharedPreferences.</string>
+    <string name="msg_note_updated">Note updated.</string>
+    <string name="msg_note_deleted">Note deleted.</string>
+    <string name="msg_operation_failed">Could not complete storage operation. Please try again.</string>
+    <string name="msg_sync_success_format">Synced: %1$d added, %2$d updated, %3$d removed.</string>
+    <string name="msg_sync_already_up_to_date">Sync complete. SharedPreferences is already up to date.</string>
+    <string name="msg_sync_failed">Synchronization failed. Pending sync state was preserved for retry.</string>
+</resources>
